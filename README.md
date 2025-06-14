@@ -3,6 +3,9 @@
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
 ### more interactive and fun!
+### HOW TO RUN
+### You will need the pillow library installed
+### Open main.py and it should work
 
 ## This is a WORK IN PROGRESS
 
