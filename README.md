@@ -1,4 +1,4 @@
-# Game_Tracker
+# Game_Tracker 1.0.0
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -6,9 +6,14 @@
 
 ## This is a WORK IN PROGRESS
 
+**Featured this version includes**
+
+- Updates screen to track progress
+- You can add your game to the list, which will display when you go to the "collections" tab
+
 **FEATURES TO ADD INCLUDE**
 
-- Adding games to your list
+- removing from the list of games
 - Tracking the progess of various games
 - When you choose a new game, you can pick or have the wheel decide for you
 - Updating the status of each game
@@ -26,3 +31,4 @@
 ### This verion will be the lite version. For a more updated and optimized version,
 ### a link will be provided upon starting that.
 
+Does this seem basic? This is the first version! further refinement will be done
