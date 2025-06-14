@@ -1,12 +1,22 @@
 import tkinter as tk
 import csv
+import os, sys
+
+def get_csv_path(filename):
+    """Returns the correct writable path for CSV in both dev and PyInstaller"""
+    if getattr(sys, 'frozen', False):  # Running in a PyInstaller bundle
+        base_path = os.path.dirname(sys.executable)
+    else:  # Running in development
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, filename)
 
 def load_journal_screen(root, go_to_home, go_to_add):
     games = ""
     label = tk.Label(root, text = "collection", font = ("Arial", 16))
-    with open('games.csv', 'r') as csv_file:
+    csv_path = get_csv_path("games.csv")
+    with open(csv_path, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
-        next(csv_file)
+        next(csv_reader)
         for line in csv_reader:
             print(line)
             games += "Game: " +line[0] + ", Progress: " + line[1] + "\n"
@@ -56,6 +66,7 @@ def load_add_screen(root, go_to_home):
 
 def add_to_list(name, progress):
     data = [name, progress]
-    with open('games.csv', 'a', newline = '') as new_file:
+    csv_path = get_csv_path("games.csv")
+    with open(csv_path, 'a', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
