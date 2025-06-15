@@ -13,12 +13,14 @@ def get_csv_path(filename):
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, filename)
 
-def ensure_csv_exists():
-    csv_path = get_csv_path("games.csv")
+def ensure_csv_exists(name):
+    csv_path = get_csv_path(name)
     if not os.path.exists(csv_path):
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['name', 'progress'])
+        return True
+    return False
 
 def show_home_screen():
     clear_screen()
@@ -44,7 +46,13 @@ def clear_screen():
     for widget in root.winfo_children():
         widget.destroy()
 
-ensure_csv_exists()
+ensure_csv_exists("games.csv")
+if (not ensure_csv_exists("curPlay.csv")):
+    data = ["N/A", "N/A"]
+    csv_path = get_csv_path("curPlay.csv")
+    with open(csv_path, 'w', newline = '') as new_file:
+        csv_writer = csv.writer(new_file)
+        csv_writer.writerow(data)
 root = tk.Tk()
 root.title("Game Tracker")
 root.geometry("1000x800")
