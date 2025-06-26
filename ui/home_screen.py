@@ -3,13 +3,16 @@ from PIL import ImageTk, Image
 import csv
 import sys, os
 
+def get_root_path():
+    if hasattr(sys, "_MEIPASS"):
+        # When bundled as an .exe
+        return sys._MEIPASS
+    else:
+        # When running as a .py file, use the working directory from which the script was launched
+        return os.path.abspath(os.getcwd())
+
 def get_csv_path(filename):
-    """Returns the correct writable path for CSV in both dev and PyInstaller"""
-    if getattr(sys, 'frozen', False):  # Running in a PyInstaller bundle
-        base_path = os.path.dirname(sys.executable)
-    else:  # Running in development
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, filename)
+    return os.path.join(get_root_path(), filename)
 
 def resource_path(relative_path):
     """ Get the absolute path to a resource, works for dev and for PyInstaller """

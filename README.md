@@ -1,21 +1,22 @@
-# Game_Tracker 1.0.1
+# Game_Tracker 1.0.2
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
 ### more interactive and fun!
 ### It is as simple as running the .exe file to run the program!
+### Any issues?
+### Join the discord and report bugs: https://discord.gg/BTpTPavk2Q
 
 ## This is a WORK IN PROGRESS
 
 **Featured this version includes**
 
 - Updates screen to track progress
-- You can add your game to the list, which will display when you go to the "collections" tab
 - You can select a game as currently being played to display on your home menu
+- Add and remove games from the list WITH CONFIRMATION
 
 **FEATURES TO ADD INCLUDE**
 
-- removing from the list of games
 - Tracking the progess of various games
 - When you choose a new game, you can pick or have the wheel decide for you
 - Updating the status of each game

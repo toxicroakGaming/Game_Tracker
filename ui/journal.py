@@ -1,23 +1,26 @@
 import tkinter as tk
 import csv
 import os, sys
+from tkinter import messagebox
 
-#get the relative path to the CSV. This assumes it exists (we create games.csv in main.py)
+def get_root_path():
+    if hasattr(sys, "_MEIPASS"):
+        # When bundled as an .exe
+        return sys._MEIPASS
+    else:
+        # When running as a .py file, use the working directory from which the script was launched
+        return os.path.abspath(os.getcwd())
+
 def get_csv_path(filename):
-    """Returns the correct writable path for CSV in both dev and PyInstaller"""
-    if getattr(sys, 'frozen', False):  # Running in a PyInstaller bundle
-        base_path = os.path.dirname(sys.executable)
-    else:  # Running in development
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, filename)
+    return os.path.join(get_root_path(), filename)
 
 #The main work of the "collections" screen
-def load_journal_screen(root, go_to_home, go_to_add):
+def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     #get the scrollabale for the game options
     frame = tk.Frame(root)
     scrollbar = tk.Scrollbar(frame)
     #collections label
-    label = tk.Label(root, text = "collection", font = ("Arial", 16))
+    label = tk.Label(root, text = "Collection", font = ("Arial", 16))
     #get the games from the CSV. Make a list with every game and the status
     game_list = []
     #Read the CSV file
@@ -60,24 +63,81 @@ def load_journal_screen(root, go_to_home, go_to_add):
                         with open(csv_path, 'w', newline = '') as new_file:
                             csv_writer = csv.writer(new_file)
                             csv_writer.writerow(line)
-                            print("changing line to")
+                            print("changing curPlay line to (selection)")
                             print(line)
+                            cur_game.set(line[0])
+                            cur_prog.set(line[1])
+                            print(cur_game.get() + " " + cur_prog.get())
                     index = index + 1
     listbox.bind('<<ListboxSelect>>', on_select)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
     add_btn = tk.Button(root, text="Add New Game", command=go_to_add)
-    change_btn = tk.Button(root, text="Change Game Currently Being Played to Selected", command=change_play_game(cur_game, cur_prog))
-    
+    change_btn = tk.Button(root, text="Change Game Currently Being Played to Selected", command=lambda:on_change(cur_game.get(), cur_prog.get()))
+    remove_btn = tk.Button(root, text="Remove Game selected", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
     label.pack(pady=20)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     frame.pack(padx=10, pady=10)
     add_btn.pack(pady=20)
+    remove_btn.pack(pady=20)
     change_btn.pack(pady=20)
     back_btn.pack(pady=20)
 
+#remove game from list
+def remove_game(title_to_remove):
+    if(title_to_remove != "N/A"):
+        print("remove?")
+        print(title_to_remove)
+        games = read_games("games.csv", 1)
+        print(games)
+        cur_play = read_games("curPlay.csv", 0)
+        updated_games = [g for g in games if g[0] != title_to_remove]
+        for g in games:
+            print(g[0] + " Game " + title_to_remove)
+        new = [["N/A", "N/A"]]
+        path = get_csv_path("curPlay.csv")
+        with open(path, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for i in csv_reader:
+                print("i[0] " + i[0] + " real? " + title_to_remove)
+                if(i[0] == title_to_remove and i[0] != "N/A"):
+                    write_games(new, "curPlay.csv", 0)
+        if len(updated_games) == len(games):
+            print("no game found")
+        else:
+            write_games(updated_games, "games.csv", 1)
+            print("Removed " + title_to_remove)
+    else:
+        print("cant remove nothing") 
+
+
+def read_games(game, header):
+    ret = []
+    print(game)
+    g = get_csv_path(game)
+    with open(g, 'r') as f:
+        csv_reader = csv.reader(f)
+        for i in range(0, header):
+            next(csv_reader)
+        for i in csv_reader:
+            ret.append(i)  # Skip header
+    print("returning")
+    return ret
+
+def write_games(games, CSV_FILE, head):
+    g = get_csv_path(CSV_FILE)
+    with open(g, "w", newline="") as f:
+        writer = csv.writer(f)
+        if(head):
+            writer.writerow(["title", "platform"])  # write header back
+        for i in games:
+            print("I is " + i[0] + " " + i[1])
+            writer.writerow(i)
+
+
 #change the game in curPlay.csv to the selected game
 def change_play_game(name, progress):
+    print("this is being called " + name)
     data = [name, progress]
     csv_path = get_csv_path("curPlay.csv")
     with open(csv_path, 'w', newline = '') as new_file:
@@ -112,7 +172,7 @@ def load_add_screen(root, go_to_home):
         Radiobutton(root, text = text, variable = progress_var, value = text, indicator = 0, 
         background = "light blue").pack(fill=X, ipady=5)
     back_btn = tk.Button(root, text="Back", command=go_to_home)
-    add_btn = tk.Button(root, text="Add", command=lambda: add_to_list(entry.get(), progress_var.get()))
+    add_btn = tk.Button(root, text="Add", command=lambda: (on_add(entry.get(), progress_var.get()), go_to_home()))
     label3.pack(pady=20)
     entry.pack()
     back_btn.pack(pady=20)
@@ -125,3 +185,28 @@ def add_to_list(name, progress):
     with open(csv_path, 'a', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
+
+#confirm with the user that they want to remove the game
+def on_remove(game):
+    result = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete " + game + " from the list?")
+    if result:
+        remove_game(game)
+    else:
+        print("User canceled deletion.")
+
+#confirm with the user that they want to add the game
+def on_add(game, prog):
+    result = messagebox.askyesno("Confirm Add", "Are you sure you want to add " + game + " with " + prog + " to the list?")
+    if result:
+        add_to_list(game, prog)
+    else:
+        print("User canceled deletion.")
+
+#confirm with the user that they want to Change the game currently being played
+def on_change(game, prog):
+    result = messagebox.askyesno("Confirm New Game Playing", "Are you sure you want to change your game currently being played to " 
+                    + game + " with " + prog)
+    if result:
+        change_play_game(game, prog)
+    else:
+        print("User canceled deletion.")
