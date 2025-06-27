@@ -1,4 +1,4 @@
-# Game_Tracker 1.0.3
+# Game_Tracker 1.0.4
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -15,12 +15,11 @@
 - You can select a game as currently being played to display on your home menu
 - Add and remove games from the list WITH CONFIRMATION
 - Add custom backgrounds or use the built-in ones
+- Change progress/status of games after they are added to the list to ensure proper progress tracking
 
 **FEATURES TO ADD INCLUDE**
 
-- Tracking the progess of various games
 - When you choose a new game, you can pick or have the wheel decide for you
-- Updating the status of each game
 - Create entries and have a blog-like section for each game
 - Each game you have will be added to a "hall of fame" where you can view progress
 - Track the progress of each game in a "progress" section

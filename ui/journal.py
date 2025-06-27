@@ -6,6 +6,9 @@ from utils.util import *
 
 #The main work of the "collections" screen
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
+    #for index in the listbox
+    prog_ind = tk.IntVar()
+    prog_ind.set(-1)
     #get the scrollabale for the game options
     frame = tk.Frame(root)
     scrollbar = tk.Scrollbar(frame)
@@ -47,23 +50,25 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
                 csv_reader = csv.reader(csv_file)
                 next(csv_reader)
                 for line in csv_reader:
+                    print("changing values to selected???")
                     print(line)
                     if(index == selected_index[0]):
-                        csv_path = get_csv_path("curPlay.csv")
-                        with open(csv_path, 'w', newline = '') as new_file:
-                            csv_writer = csv.writer(new_file)
-                            csv_writer.writerow(line)
-                            print("changing curPlay line to (selection)")
-                            print(line)
-                            cur_game.set(line[0])
-                            cur_prog.set(line[1])
-                            print(cur_game.get() + " " + cur_prog.get())
+                        cur_game.set(line[0])
+                        cur_prog.set(line[1])
+                    if(cur_game == "N/A"):
+                        prog_ind.set(-1)
+                    else:
+                        prog_ind.set(index)
                     index = index + 1
+            print(cur_game.get())
+            print(cur_prog.get())
+            print("above values were changed to what they are")
     listbox.bind('<<ListboxSelect>>', on_select)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
     add_btn = tk.Button(root, text="Add New Game", command=go_to_add)
-    change_btn = tk.Button(root, text="Change Game Currently Being Played to Selected", command=lambda:on_change(cur_game.get(), cur_prog.get()))
+    change_btn = tk.Button(root, text="Change Game Currently Being Played to Selected", command=lambda:(game_change(cur_game.get(), cur_prog.get())))
+    prog_btn = tk.Button(root, text="Change Progress of Selected", command=lambda:(clear_screen(root), change_prog_game(cur_game.get(), root, prog_ind.get(), go_to_journal)))
     remove_btn = tk.Button(root, text="Remove Game selected", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
     label.pack(pady=20)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -71,7 +76,14 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     add_btn.pack(pady=20)
     remove_btn.pack(pady=20)
     change_btn.pack(pady=20)
+    prog_btn.pack(pady=20)
     back_btn.pack(pady=20)
+
+def get_game_index(event):
+    selection = event.widget.curselection()
+    if selection:
+        index = selection[0]
+        return index
 
 #remove game from list
 def remove_game(title_to_remove):
@@ -127,7 +139,7 @@ def write_games(games, CSV_FILE, head):
 
 #change the game in curPlay.csv to the selected game
 def change_play_game(name, progress):
-    print("this is being called " + name)
+    print("this is being called 1234 " + name)
     data = [name, progress]
     csv_path = get_csv_path("curPlay.csv")
     with open(csv_path, 'w', newline = '') as new_file:
@@ -135,36 +147,85 @@ def change_play_game(name, progress):
         csv_writer.writerow(data)
     print(data)
 
+def change_prog_game(name, root, ind, go_to_journal):
+    print(ind)
+    print("above is the index")
+    if(ind != -1):
+        temp = []
+        game_name = tk.Label(root, text = "Game changing: " + name)
+        game_name.pack(pady = 20)
+        progress_var = add_options(root)
+        change_btn = tk.Button(root, text="Change Progress", command=lambda:on_click(name, progress_var.get()))
+        back_btn = tk.Button(root, text="Back to Home", command=go_to_journal)
+        change_btn.pack(pady=20)
+        back_btn.pack(pady=20)
+        print("we made it!")
+        def on_click(name, progress):
+            data = [name, progress]
+            print("yes")
+            if(prog_change(name, progress_var)):
+                csv_path = get_csv_path("curPlay.csv")
+                with open(csv_path, 'r', newline = '') as new_file:
+                    csv_reader = csv.reader(new_file)
+                    if(next(csv_reader)[0] == name):
+                        change_play_game(name, progress)
+                csv_path = get_csv_path("games.csv")
+                #read the games into a temporary list so that we can write from it
+                with open(csv_path, 'r', newline = '') as new_file:
+                    csv_reader = csv.reader(new_file)
+                    for i in csv_reader:
+                        print("rows in this reader")
+                        print(i)
+                        temp.append(i)
+                        print(i[1])
+                #write temp to the csv
+                with open(csv_path, 'w', newline = '') as new_file:
+                    index = 0
+                    csv_writer = csv.writer(new_file)
+                    for i in temp:
+                        print("This is where we are")
+                        print(i)
+                        if(index == ind + 1):
+                            csv_writer.writerow(data)
+                        else:
+                            print("added")
+                            print(index)
+                            print(temp[index])
+                            csv_writer.writerow(temp[index])
+                            print("success!")
+                        index += 1
+    else:
+        print("INVALID!")
+
 def load_add_screen(root, go_to_home):
     label = tk.Label(root, text="Add a game", font=("Arial", 16))
     label2 = tk.Label(root, text="Select Progress", font=("Arial", 16))
     label3 = tk.Label(root, text="Type Game Name", font=("Arial", 16))
     entry = tk.Entry(root, text = "Type Game Name", font = ("Arial", 16))
-    #v = StringVar(root, "1")
-
-    # Dictionary to create multiple buttons
-    values = {"Not Started" : "1",
-            "In Progress" : "2",
-            "Completed" : "3",
-            "100%" : "4"}
 
     # Loop is used to create multiple Radiobuttons
     # rather than creating each button separately
     choice = tk.StringVar()
     label.pack(pady=20)
-    label2.pack(pady=20)
-    progress_var = StringVar(root)
-    progress_var.set("Not Started")
-    values = ["Not Started", "In Progress", "Completed", "100%"]
-    for text in values:
-        Radiobutton(root, text = text, variable = progress_var, value = text, indicator = 0, 
-        background = "light blue").pack(fill=X, ipady=5)
+    #set the progress values
+    progress_var = add_options(root)
     back_btn = tk.Button(root, text="Back", command=go_to_home)
     add_btn = tk.Button(root, text="Add", command=lambda: (on_add(entry.get(), progress_var.get()), go_to_home()))
     label3.pack(pady=20)
     entry.pack()
     back_btn.pack(pady=20)
     add_btn.pack(pady = 20)
+
+#For adding progress options. Used in multiple places. Could also maybe update to pass in values as
+#a parameter in the future
+def add_options(root):
+    progress_var = StringVar(root)
+    progress_var.set("Not Started")
+    values = ["Not Started", "In Progress", "Completed", "100%"]
+    for text in values:
+        Radiobutton(root, text = text, variable = progress_var, value = text, indicator = 0, 
+        background = "light blue").pack(fill=X, ipady=5)
+    return progress_var
 
 #Update the CSV with the new game, which is the name and the progress
 def add_to_list(name, progress):
@@ -191,10 +252,23 @@ def on_add(game, prog):
         print("User canceled deletion.")
 
 #confirm with the user that they want to Change the game currently being played
-def on_change(game, prog):
+def game_change(game, prog):
     result = messagebox.askyesno("Confirm New Game Playing", "Are you sure you want to change your game currently being played to " 
                     + game + " with " + prog)
     if result:
         change_play_game(game, prog)
     else:
         print("User canceled deletion.")
+
+#confirm with the user that they want to Change the game currently being played
+def prog_change(game, prog):
+    if(game == "N/A"):
+        result = messagebox.askyesno("Invalid", "Can't change progress due to N/A state")
+        return
+    result = messagebox.askyesno("Confirm New Game Progress", "Are you sure you want to change  " 
+                    + game + " progress to " + prog.get() + "?")
+    if result:
+        return True
+    else:
+        print("User canceled deletion.")
+        return False

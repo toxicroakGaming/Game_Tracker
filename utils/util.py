@@ -5,6 +5,9 @@ import sys, os
 from PIL import Image, ImageTk
 import shutil
 
+background_data = {"label": None, "img": None}
+
+
 def ensure_csv_exists(name):
     csv_path = get_csv_path(name)
     if not os.path.exists(csv_path):
@@ -108,3 +111,9 @@ def change_bg(root, dest_path, holder, data):
     else:
         print("User canceled deletion.")
     return None, None
+
+def clear_screen(root):
+    for widget in root.winfo_children():
+        widget.destroy()
+    current_bg_path = get_bg_image()
+    background_label, bg_image = set_background(root, current_bg_path, background_data)

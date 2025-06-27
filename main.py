@@ -10,34 +10,29 @@ from utils.state import *
 from utils.util import *
 
 def show_home_screen():
-    clear_screen()
+    clear_screen(root)
     load_home_screen(root, show_update_screen, show_journal_screen, show_image_screen)
 
 def show_update_screen():
-    clear_screen()
+    clear_screen(root)
     load_update_screen(root, show_home_screen)
 
 def show_journal_screen():
-    clear_screen()
+    clear_screen(root)
     load_journal_screen(root, show_home_screen, show_add_screen, show_journal_screen)
 
 def show_add_screen():
-    clear_screen()
+    clear_screen(root)
     load_add_screen(root, show_journal_screen)
 
 def show_remove_screen():
-    clear_screen()
+    clear_screen(root)
     load_remove_screen(root, show_journal_screen)   
 
 def show_image_screen():
-    clear_screen()
+    clear_screen(root)
     load_image_screen(root, show_home_screen, show_image_screen)
 
-def clear_screen():
-    for widget in root.winfo_children():
-        widget.destroy()
-    current_bg_path = get_bg_image()
-    background_label, bg_image = set_background(root, current_bg_path, background_data)
 
 #load the default (home) screen
 root = tk.Tk()
@@ -47,7 +42,6 @@ img_path = get_resource_path(current_bg_path)
 background_label, bg_image = set_background(root, img_path, background_data)
 ensure_csv_exists("games.csv")
 if (ensure_csv_exists("curPlay.csv")):
-    print("A")
     data = ["N/A", "N/A"]
     csv_path = get_csv_path("curPlay.csv")
     with open(csv_path, 'w', newline = '') as new_file:
