@@ -26,7 +26,7 @@ def resource_path(relative_path):
 
 
 
-def load_home_screen(root, go_to_update, go_to_journal):
+def load_home_screen(root, go_to_update, go_to_journal, go_to_image):
     label = tk.Label(root, text="Welcome to Game Tracker!", font=("Arial", 16))
     label.pack(pady=20)
     #read curPlay.csv to get the current game. It is automatically made to "N/A,N/A"
@@ -45,9 +45,11 @@ def load_home_screen(root, go_to_update, go_to_journal):
     label2 = tk.Label(root, image=photo_image)
     label2.image = photo_image
     btn = tk.Button(root, text="Updates", command=go_to_update)
-    btn2 = tk.Button(root, text="Collection", command=go_to_journal)
+    col_btn = tk.Button(root, text="Collection", command=go_to_journal)
+    bg_btn = tk.Button(root, text="Change Background", command=go_to_image)
     play_label.pack()
     btn.pack()
-    btn2.pack()
+    col_btn.pack()
+    bg_btn.pack()
     label.pack(pady=20)
     label2.pack()

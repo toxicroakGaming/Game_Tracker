@@ -1,18 +1,8 @@
 import tkinter as tk
 import csv
 import os, sys
-from tkinter import messagebox
-
-def get_root_path():
-    if hasattr(sys, "_MEIPASS"):
-        # When bundled as an .exe
-        return sys._MEIPASS
-    else:
-        # When running as a .py file, use the working directory from which the script was launched
-        return os.path.abspath(os.getcwd())
-
-def get_csv_path(filename):
-    return os.path.join(get_root_path(), filename)
+from tkinter import *
+from utils.util import *
 
 #The main work of the "collections" screen
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
@@ -145,14 +135,12 @@ def change_play_game(name, progress):
         csv_writer.writerow(data)
     print(data)
 
-# Importing Tkinter module
-from tkinter import *
 def load_add_screen(root, go_to_home):
     label = tk.Label(root, text="Add a game", font=("Arial", 16))
     label2 = tk.Label(root, text="Select Progress", font=("Arial", 16))
     label3 = tk.Label(root, text="Type Game Name", font=("Arial", 16))
     entry = tk.Entry(root, text = "Type Game Name", font = ("Arial", 16))
-    v = StringVar(root, "1")
+    #v = StringVar(root, "1")
 
     # Dictionary to create multiple buttons
     values = {"Not Started" : "1",

@@ -13,7 +13,9 @@ def load_update_screen(root, go_to_home):
     " - You can set game being currently played in the collections menu\n" + 
     "\n1.0.2\n - Bugfixes\n" +
     " - Added the ability to remove games from your collection\n" + 
-    " - Added confirmation when any action is done", font=("Arial", 10))
+    " - Added confirmation when any action is done\n" +
+    "1.0.3\n - Added Backgrounds\n" + 
+    " - You can also add custom backgrounds", font=("Arial", 10))
     label2.pack(pady=20)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)

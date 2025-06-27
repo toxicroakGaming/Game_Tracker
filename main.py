@@ -1,33 +1,17 @@
 import tkinter as tk
 from ui.update_screen import load_update_screen
 from ui.home_screen import load_home_screen
+from ui.options_screen import load_image_screen
 from ui.journal import load_journal_screen, load_add_screen
+from PIL import Image, ImageTk
 import csv
 import sys, os
-
-def get_root_path():
-    if hasattr(sys, "_MEIPASS"):
-        # When bundled as an .exe
-        return sys._MEIPASS
-    else:
-        # When running as a .py file, use the working directory from which the script was launched
-        return os.path.abspath(os.getcwd())
-
-def get_csv_path(filename):
-    return os.path.join(get_root_path(), filename)
-
-def ensure_csv_exists(name):
-    csv_path = get_csv_path(name)
-    if not os.path.exists(csv_path):
-        with open(csv_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['name', 'progress'])
-        return True
-    return False
+from utils.state import *
+from utils.util import *
 
 def show_home_screen():
     clear_screen()
-    load_home_screen(root, show_update_screen, show_journal_screen)
+    load_home_screen(root, show_update_screen, show_journal_screen, show_image_screen)
 
 def show_update_screen():
     clear_screen()
@@ -45,22 +29,30 @@ def show_remove_screen():
     clear_screen()
     load_remove_screen(root, show_journal_screen)   
 
+def show_image_screen():
+    clear_screen()
+    load_image_screen(root, show_home_screen, show_image_screen)
+
 def clear_screen():
     for widget in root.winfo_children():
         widget.destroy()
+    current_bg_path = get_bg_image()
+    background_label, bg_image = set_background(root, current_bg_path, background_data)
 
+#load the default (home) screen
+root = tk.Tk()
+root.title("Game Tracker")
+root.geometry("1000x800")
+img_path = get_resource_path(current_bg_path)
+background_label, bg_image = set_background(root, img_path, background_data)
 ensure_csv_exists("games.csv")
-if (not ensure_csv_exists("curPlay.csv")):
+if (ensure_csv_exists("curPlay.csv")):
     print("A")
     data = ["N/A", "N/A"]
     csv_path = get_csv_path("curPlay.csv")
     with open(csv_path, 'w', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
-root = tk.Tk()
-root.title("Game Tracker")
-root.geometry("1000x800")
-
 # Start at home screen
 show_home_screen()
 
