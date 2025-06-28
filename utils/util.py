@@ -5,7 +5,22 @@ import sys, os
 from PIL import Image, ImageTk
 import shutil
 
+
+#for loading images and such
+def get_resource_path(relative_path):
+    """Returns the absolute path to a resource file (image, csv, etc.)"""
+    if hasattr(sys, '_MEIPASS'):
+        # If bundled into an EXE, use the temp folder PyInstaller extracts to
+        base_path = sys._MEIPASS
+    else:
+        # If running locally, use the directory of the current script
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+default_game = ["N/A", "N/A", get_resource_path(r"ui\media\games\no_image.jpg")]
 background_data = {"label": None, "img": None}
+
 
 
 def ensure_csv_exists(name):
@@ -13,7 +28,7 @@ def ensure_csv_exists(name):
     if not os.path.exists(csv_path):
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['name', 'progress'])
+            writer.writerow(['name', 'progress', 'image'])
         return True
     return False
 
@@ -71,18 +86,6 @@ def set_background(root, image_path, holder):
     except Exception as e:
         print(f"[ERROR] Failed to load image: {e}")
         return None, None
-
-#for loading images and such
-def get_resource_path(relative_path):
-    """Returns the absolute path to a resource file (image, csv, etc.)"""
-    if hasattr(sys, '_MEIPASS'):
-        # If bundled into an EXE, use the temp folder PyInstaller extracts to
-        base_path = sys._MEIPASS
-    else:
-        # If running locally, use the directory of the current script
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 def load_custom_background(root, holder, backgrounds_folder):
     filepath = filedialog.askopenfilename(

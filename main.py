@@ -42,7 +42,7 @@ img_path = get_resource_path(current_bg_path)
 background_label, bg_image = set_background(root, img_path, background_data)
 ensure_csv_exists("games.csv")
 if (ensure_csv_exists("curPlay.csv")):
-    data = ["N/A", "N/A"]
+    data = default_game
     csv_path = get_csv_path("curPlay.csv")
     with open(csv_path, 'w', newline = '') as new_file:
         csv_writer = csv.writer(new_file)

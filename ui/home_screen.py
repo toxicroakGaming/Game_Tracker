@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import ImageTk, Image 
 import csv
 import sys, os
+from utils.util import *
 
 def get_root_path():
     if hasattr(sys, "_MEIPASS"):
@@ -36,8 +37,14 @@ def load_home_screen(root, go_to_update, go_to_journal, go_to_image):
         csv_reader = csv.reader(csv_file)
         for line in csv_reader:
             play += line[0] + " with progress: " + line[1]
-    play_label = tk.Label(root, text=play, font=("Arial", 16))
-
+            #load the image
+            src = line[2]
+            img = Image.open(src)
+            img = img.resize((100, 100))
+            img_tk = ImageTk.PhotoImage(img)
+            play_label = tk.Label(root, image=img_tk, text=play,compound="bottom")
+            play_label.image = img_tk
+            play_label.pack()
     image_path = resource_path("ui/media/games.png")
     image = Image.open(image_path)
     resized_image = image.resize((275, 225))
