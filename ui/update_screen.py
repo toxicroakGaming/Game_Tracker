@@ -18,7 +18,8 @@ def load_update_screen(root, go_to_home):
     " - You can also add custom backgrounds" +
     "\n1.0.4\n - You can change the status of games in the list" +
     "\n1.0.5\n - Revamped collection screen. Now includes images" + 
-    "\n - Current game being played also includes an image on the home screen", font=("Arial", 10))
+    "\n - Current game being played also includes an image on the home screen\n",
+    " - *mini update to 1.0.5* Added new default background", font=("Arial", 10))
     label2.pack(pady=20)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)

@@ -16,6 +16,7 @@
 - Add and remove games from the list WITH CONFIRMATION
 - Add custom backgrounds or use the built-in ones
 - Change progress/status of games after they are added to the list to ensure proper progress tracking
+- new backgrounds in 1.0.5 for you to choose from! part of a mini update
 
 **BUGFIXES**
 - fixed a bug where clicking on change game when the game was N/A or not selected would lead to nothing

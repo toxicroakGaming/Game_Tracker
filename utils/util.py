@@ -5,8 +5,9 @@ import sys, os
 from PIL import Image, ImageTk
 import shutil
 
+#this file contains utility functions taht can be used in other files
 
-#for loading images and such
+#for loading images and such, we want to get the relative path
 def get_resource_path(relative_path):
     """Returns the absolute path to a resource file (image, csv, etc.)"""
     if hasattr(sys, '_MEIPASS'):
@@ -18,11 +19,13 @@ def get_resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+#for keeping references and not getting garbage collected
+#the defaults for if there is no game
 default_game = ["N/A", "N/A", get_resource_path(r"ui\media\games\no_image.jpg")]
 background_data = {"label": None, "img": None}
 
 
-
+#we want to create the CSV's needed if they dont exist
 def ensure_csv_exists(name):
     csv_path = get_csv_path(name)
     if not os.path.exists(csv_path):
@@ -32,7 +35,7 @@ def ensure_csv_exists(name):
         return True
     return False
 
-
+#for getting relative paths
 def get_root_path():
     if hasattr(sys, "_MEIPASS"):
         # When bundled as an .exe
@@ -44,9 +47,10 @@ def get_root_path():
 def get_csv_path(filename):
     return os.path.join(get_root_path(), filename)
 
-
+#get the image thats the background image
 def get_bg_image():
     csv_path = get_csv_path("curBG.csv")
+    #ensure csv exists
     if(ensure_csv_exists("curBG.csv")):
         data = [get_resource_path(r"ui\media\bg\default_bg.png")]
         with open(csv_path, 'w', newline = '') as new_file:
