@@ -39,7 +39,11 @@ root = tk.Tk()
 root.title("Game Tracker")
 root.geometry("1000x800")
 img_path = get_resource_path(current_bg_path)
-background_label, bg_image = set_background(root, img_path, background_data)
+# Load path saved previously
+bg_path = get_persistent_bg_image()
+# Show it
+background_label, current_bg_path = set_background(root, bg_path, background_data)
+print("[DEBUG] background_data id:", id(background_data))
 ensure_csv_exists("games.csv")
 if (ensure_csv_exists("curPlay.csv")):
     data = default_game

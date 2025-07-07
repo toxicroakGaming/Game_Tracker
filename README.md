@@ -1,4 +1,4 @@
-# Game_Tracker 1.0.5
+# Game_Tracker 1.0.6
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -16,11 +16,10 @@
 - Add and remove games from the list WITH CONFIRMATION
 - Add custom backgrounds or use the built-in ones
 - Change progress/status of games after they are added to the list to ensure proper progress tracking
-- new backgrounds in 1.0.5 for you to choose from! part of a mini update
+- Each game has its own page in the descriptions screen where you can edit the description
 
 **BUGFIXES**
-- fixed a bug where clicking on change game when the game was N/A or not selected would lead to nothing
-- Cleaned up the code dramatically. made it more readable
+- fixed persistence issues
 
 **FEATURES TO ADD INCLUDE**
 

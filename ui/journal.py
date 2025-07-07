@@ -21,7 +21,6 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     csv_path = get_csv_path("games.csv")
     with open(csv_path, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
-        next(csv_reader)
         for line in csv_reader:
             print(line)
             game_list.append(line)
@@ -49,12 +48,14 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     cur_game = tk.StringVar()
     cur_prog = tk.StringVar()
     cur_link = tk.StringVar()
-    cur_prog.set("N/A")
-    cur_game.set("N/A")
+    cur_desc = tk.StringVar()
+    cur_prog.set(default_game[0])
+    cur_game.set(default_game[1])
     cur_link.set(default_game[2])
+    cur_desc.set(default_game[3])
     image_refs = []  # To keep images alive
     ind = 0
-    for game in game_list:
+    for index, game in enumerate(game_list):
         title = game[0]
         platform = game[1]
         img_path = game[2]
@@ -77,7 +78,7 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
         img_label = tk.Label(game_frame, image=photo)
         img_label.bind(
             "<Button-1>",
-            lambda event, t=title, p=platform, i = img_path: on_game_click(t, p, i)
+            lambda event, t=title, p=platform, i = img_path, ind = index: on_game_click(t, p, i, go_to_journal, ind, root)
         )
         img_label.image = photo
         img_label.pack()
@@ -87,35 +88,98 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
         text = f"{title}\n({platform})"
         text_label = tk.Label(game_frame, text=text, wraplength=120, justify="center")
         text_label.pack()
-
-        # You can add a button here if needed
-        btn = tk.Button(game_frame, text="Change Progress", command=lambda t=title: change_prog_game(t, root, ind, go_to_journal))
-        # btn.pack(pady=5)
-
         # Arrange in grid
         col += 1
         if col >= 3:
             col = 0
             row += 1
         ind += 1
-    def on_game_click(name, progress, image):
+    def on_game_click(name, progress, img, go_to_journal, ind, root):
+        print("[DEBUG] on_game_click() img =", img)
+        clear_screen(root)
+        thumb_size = (120, 120)
         cur_game.set(name)
         cur_prog.set(progress)
-        cur_link.set(image)
-        sel_label.config(text=name + " Selected")
+        cur_link.set(img)
+        title_label = tk.Label(root, text = name)
+        title_label.pack(pady = 10)
+        new_img = Image.new("RGB", thumb_size, color="gray")
+        if os.path.exists(img):
+            new_img = Image.open(img)
+        else:
+            new_img = Image.new("RGB", thumb_size, color="gray")
+        new_img.thumbnail(thumb_size)
+        photo = ImageTk.PhotoImage(new_img)
+        image_refs.append(photo)
+        img_label = tk.Label(root, image=photo)
+        img_label.image = photo
+        img_label.pack()
+        back_btn = tk.Button(root, text="Back to Collection", command=go_to_journal)
+        remove_btn = tk.Button(root, text="Remove Game", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
+        change_btn = tk.Button(root, text="Change Game Currently Being Played to this", command=lambda:(game_change(cur_game.get(), cur_prog.get(), cur_link.get())))
+        prog_btn = tk.Button(root, text="Change Progress", command=lambda t=name: change_prog_game(t, root, ind, go_to_journal))
+        desc_label = tk.Label(root, text = "Description:")
+        browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root)))
+        desc_text_label = tk.Label(root)
+        if(name != "N/A"):
+            desc_path = os.path.join(get_user_data_dir(), "desc", f"{name}.txt")
+            desc_btn = tk.Button(root, text="Edit Description", command=lambda:(edit_text_file(root,desc_path, 
+                        lambda:on_game_click(name, progress, img, go_to_journal, ind, root))))
+            desc_text = ""
+            with open(desc_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+                for line in lines:
+                    desc_text += line.strip()  # strip() removes trailing newline
+            desc_text_label.config(text = desc_text)
+            desc_label.pack(pady = 10)
+            desc_text_label.pack(pady = 10)
+            desc_btn.pack(pady = 10)
+            browse_btn.pack(pady = 10)
+            prog_btn.pack(pady = 10)
+        if(name != "N/A"):    
+            change_btn.pack(pady=10)
+            remove_btn.pack(pady=10)
+        back_btn.pack(side="left", padx=20)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
     add_btn = tk.Button(root, text="Add New Game", command=go_to_add)
-    change_btn = tk.Button(root, text="Change Game Currently Being Played to Selected", command=lambda:(game_change(cur_game.get(), cur_prog.get(), cur_link.get())))
-    remove_btn = tk.Button(root, text="Remove Game selected", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
     label.pack(pady=20)
     sel_label.pack()
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     frame.pack(padx=10, pady=10)
     add_btn.pack(pady=20)
-    remove_btn.pack(pady=20)
-    change_btn.pack(pady=20)
     back_btn.pack(pady=20)
+    def on_img_click(name, progress, go_to_journal, ind, root):
+        clear_screen(root)
+        path = tk.StringVar()
+        temp_label = tk.Label(root)
+        browse_image(path, temp_label)
+        new_image = path.get()
+        print("[DEBUG] New image path selected:", new_image)
+        game_path = get_csv_path("games.csv")
+        cur_play_path = get_csv_path("curPlay.csv")
+        games = []
+        with open(cur_play_path, 'r', newline='') as f:
+            cur = next(csv.reader(f))
+            if cur[0] == name:
+                with open(cur_play_path, 'w', newline='') as f:
+                    print(cur)
+                    csv.writer(f).writerow([cur[0], cur[1], new_image])
+
+            # Update games.csv
+            game_path = get_csv_path("games.csv")
+            updated_games = []
+            with open(game_path, 'r', newline='') as f:
+                for row in csv.reader(f):
+                    if row[0] == name:
+                        updated_games.append([row[0], row[1], new_image, row[3]])
+                    else:
+                        updated_games.append(row)
+
+            with open(game_path, 'w', newline='') as f:
+                csv.writer(f).writerows(updated_games)
+        clear_screen(root)
+        on_game_click(name, progress, path.get(), go_to_journal, ind, root)
 
 def get_game_index(event):
     selection = event.widget.curselection()
@@ -169,7 +233,7 @@ def write_games(games, CSV_FILE, head):
     with open(g, "w", newline="") as f:
         writer = csv.writer(f)
         if(head):
-            writer.writerow(["title", "platform"])  # write header back
+            writer.writerow(["title", "platform", "image", "desc"])  # write header back
         for i in games:
             print("I is " + i[0] + " " + i[1])
             writer.writerow(i)
@@ -206,48 +270,30 @@ def change_prog_game(name, root, ind, go_to_journal):
                 csv_path = get_csv_path("curPlay.csv")
                 with open(csv_path, 'r', newline = '') as new_file:
                     csv_reader = csv.reader(new_file)
-                    if(next(csv_reader)[0] == name):
-                        change_play_game(name, progress)
+                    cur = next(csv_reader)
+                    if(cur[0] == name):
+                        change_play_game(name, progress, cur[2])
                 csv_path = get_csv_path("games.csv")
                 #read the games into a temporary list so that we can write from it
                 with open(csv_path, 'r', newline = '') as new_file:
                     csv_reader = csv.reader(new_file)
                     for i in csv_reader:
-                        print("rows in this reader")
-                        print(i)
                         temp.append(i)
-                        print(i[1])
                 #write temp to the csv
                 with open(csv_path, 'w', newline = '') as new_file:
                     index = 0
                     csv_writer = csv.writer(new_file)
                     for i in temp:
-                        print("This is where we are")
-                        print(i)
                         if(index == ind + 1):
+                            data = [name, progress, i[2], i[3]]
                             csv_writer.writerow(data)
                         else:
-                            print("added")
-                            print(index)
-                            print(temp[index])
                             csv_writer.writerow(temp[index])
-                            print("success!")
                         index += 1
     else:
         print("INVALID!")
 
 def load_add_screen(root, go_to_home):
-    def browse_image():
-        filepath = filedialog.askopenfilename(
-            title="Select Game Image",
-            filetypes=[("Image Files", "*.png *.jpg *.jpeg *.bmp")]
-        )
-        if filepath:
-            image_path.set(filepath)
-            image_label.config(text=os.path.basename(filepath))
-        else:
-            image_path.set(default_game[2])
-            image_label.config(text="No image selected")
     image_path = tk.StringVar()
     image_path.set(default_game[2])
     label = tk.Label(root, text="Add a game", font=("Arial", 16))
@@ -255,7 +301,7 @@ def load_add_screen(root, go_to_home):
     label3 = tk.Label(root, text="Type Game Name", font=("Arial", 16))
     image_label = tk.Label(root, text="No image selected")
     entry = tk.Entry(root, text = "Type Game Name", font = ("Arial", 16))
-    browse_btn = tk.Button(root, text="Browse Image", command=lambda:(browse_image()))
+    browse_btn = tk.Button(root, text="Browse Image", command=lambda:(browse_image(image_path, image_label)))
 
     # Loop is used to create multiple Radiobuttons
     # rather than creating each button separately
@@ -287,7 +333,8 @@ def add_options(root):
 
 #Update the CSV with the new game, which is the name and the progress
 def add_to_list(name, progress, image):
-    data = [name, progress, image]
+    desc_file = "ui/desc/" + name + ".txt"
+    data = [name, progress, image, desc_file]
     csv_path = get_csv_path("games.csv")
     with open(csv_path, 'a', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
@@ -300,6 +347,7 @@ def on_remove(game):
         return
     result = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete " + game + " from the list?")
     if result:
+        delete_description(game)
         remove_game(game)
     else:
         print("User canceled deletion.")
@@ -308,6 +356,7 @@ def on_remove(game):
 def on_add(game, prog, image):
     result = messagebox.askyesno("Confirm Add", "Are you sure you want to add " + game + " with " + prog + " to the list?")
     if result:
+        create_description(game)
         add_to_list(game, prog, image)
     else:
         print("User canceled deletion.")
