@@ -4,182 +4,41 @@ import os, sys
 from tkinter import *
 from utils.util import *
 
+
+class GameListRef:
+    def __init__(self, val=None):
+        self.val = val
+
 #The main work of the "collections" screen
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
-    #for index in the listbox
-    prog_ind = tk.IntVar()
-    prog_ind.set(-1)
-    #get the scrollabale for the game options
-    frame = tk.Frame(root)
-    scrollbar = tk.Scrollbar(frame)
     #collections label
     label = tk.Label(root, text = "Collection", font = ("Arial", 16))
     sel_label = tk.Label(root, text = "No Game Currently Selected", font = ("Arial", 16))
     #get the games from the CSV. Make a list with every game and the status
-    game_list = []
-    #Read the CSV file
-    csv_path = get_csv_path("games.csv")
-    with open(csv_path, 'r') as csv_file:
-        csv_reader = csv.reader(csv_file)
-        for line in csv_reader:
-            print(line)
-            game_list.append(line)
-        if(game_list == []):
-            print(True)
-            game_list.append(default_game)
-            print("appended default game")
-    #scrollbox
-    # Create canvas with scrollbar
-    canvas = tk.Canvas(root, borderwidth=0, background="#f0f0f0")
-    frame = tk.Frame(canvas, background="#f0f0f0")
-    vsb = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
-    canvas.configure(yscrollcommand=vsb.set)
-
-    vsb.pack(side="right", fill="y")
-    canvas.pack(side="left", fill="both", expand=True)
-    canvas.create_window((0,0), window=frame, anchor="nw")
-
-    def on_frame_configure(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
-    frame.bind("<Configure>", on_frame_configure)
-    thumb_size = (120, 120)
-    row = 0
-    col = 0
-    cur_game = tk.StringVar()
-    cur_prog = tk.StringVar()
-    cur_link = tk.StringVar()
-    cur_desc = tk.StringVar()
-    cur_prog.set(default_game[0])
-    cur_game.set(default_game[1])
-    cur_link.set(default_game[2])
-    cur_desc.set(default_game[3])
-    image_refs = []  # To keep images alive
-    ind = 0
-    for index, game in enumerate(game_list):
-        title = game[0]
-        platform = game[1]
-        img_path = game[2]
-        img_path = get_resource_path(img_path)
-
-        # Create frame for each game
-        game_frame = tk.Frame(frame, bd=2, relief="groove", background="white")
-        game_frame.grid(row=row, column=col, padx=10, pady=10)
-
-        # Load image
-        if os.path.exists(img_path):
-            img = Image.open(img_path)
-        else:
-            img = Image.new("RGB", thumb_size, color="gray")
-        img.thumbnail(thumb_size)
-        photo = ImageTk.PhotoImage(img)
-        image_refs.append(photo)
-
-        # Image label
-        img_label = tk.Label(game_frame, image=photo)
-        img_label.bind(
-            "<Button-1>",
-            lambda event, t=title, p=platform, i = img_path, ind = index: on_game_click(t, p, i, go_to_journal, ind, root)
-        )
-        img_label.image = photo
-        img_label.pack()
-
-
-        # Text label
-        text = f"{title}\n({platform})"
-        text_label = tk.Label(game_frame, text=text, wraplength=120, justify="center")
-        text_label.pack()
-        # Arrange in grid
-        col += 1
-        if col >= 3:
-            col = 0
-            row += 1
-        ind += 1
-    def on_game_click(name, progress, img, go_to_journal, ind, root):
-        print("[DEBUG] on_game_click() img =", img)
-        clear_screen(root)
-        thumb_size = (120, 120)
-        cur_game.set(name)
-        cur_prog.set(progress)
-        cur_link.set(img)
-        title_label = tk.Label(root, text = name)
-        title_label.pack(pady = 10)
-        new_img = Image.new("RGB", thumb_size, color="gray")
-        if os.path.exists(img):
-            new_img = Image.open(img)
-        else:
-            new_img = Image.new("RGB", thumb_size, color="gray")
-        new_img.thumbnail(thumb_size)
-        photo = ImageTk.PhotoImage(new_img)
-        image_refs.append(photo)
-        img_label = tk.Label(root, image=photo)
-        img_label.image = photo
-        img_label.pack()
-        back_btn = tk.Button(root, text="Back to Collection", command=go_to_journal)
-        remove_btn = tk.Button(root, text="Remove Game", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
-        change_btn = tk.Button(root, text="Change Game Currently Being Played to this", command=lambda:(game_change(cur_game.get(), cur_prog.get(), cur_link.get())))
-        prog_btn = tk.Button(root, text="Change Progress", command=lambda t=name: change_prog_game(t, root, ind, go_to_journal))
-        desc_label = tk.Label(root, text = "Description:")
-        browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root)))
-        desc_text_label = tk.Label(root)
-        if(name != "N/A"):
-            desc_path = os.path.join(get_user_data_dir(), "desc", f"{name}.txt")
-            desc_btn = tk.Button(root, text="Edit Description", command=lambda:(edit_text_file(root,desc_path, 
-                        lambda:on_game_click(name, progress, img, go_to_journal, ind, root))))
-            desc_text = ""
-            with open(desc_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                for line in lines:
-                    desc_text += line.strip()  # strip() removes trailing newline
-            desc_text_label.config(text = desc_text)
-            desc_label.pack(pady = 10)
-            desc_text_label.pack(pady = 10)
-            desc_btn.pack(pady = 10)
-            browse_btn.pack(pady = 10)
-            prog_btn.pack(pady = 10)
-        if(name != "N/A"):    
-            change_btn.pack(pady=10)
-            remove_btn.pack(pady=10)
-        back_btn.pack(side="left", padx=20)
-
+    games_ref = GameListRef()
+    load_collection(root, go_to_journal, games_holder["sort"], games_holder["games"])
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
     add_btn = tk.Button(root, text="Add New Game", command=go_to_add)
+    az_btn = tk.Button(root, text="Sort By Name (A-Z)", command=lambda:(clear_screen(root),
+                            games_holder.update({"games": sort_games(0), "sort" : 0}),
+                            load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
+    za_btn = tk.Button(root, text="Sort By Name (Z-A)", command=lambda:(        clear_screen(root),
+                            games_holder.update({"games": sort_games(1), "sort" : 1}),
+                            load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
+    least_btn = tk.Button(root, text="Sort By Progress (least-most)", command=lambda:(clear_screen(root),
+                            games_holder.update({"games": sort_games(2), "sort" : 2}),
+                            load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
+    most_btn = tk.Button(root, text="Sort By Progress (most - least)", command=lambda:(clear_screen(root),
+                            games_holder.update({"games": sort_games(3), "sort" : 3}),
+                            load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
     label.pack(pady=20)
     sel_label.pack()
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    frame.pack(padx=10, pady=10)
     add_btn.pack(pady=20)
+    az_btn.pack(pady=20)
+    za_btn.pack(pady=20)
+    least_btn.pack(pady=20)
+    most_btn.pack(pady=20)
     back_btn.pack(pady=20)
-    def on_img_click(name, progress, go_to_journal, ind, root):
-        clear_screen(root)
-        path = tk.StringVar()
-        temp_label = tk.Label(root)
-        browse_image(path, temp_label)
-        new_image = path.get()
-        print("[DEBUG] New image path selected:", new_image)
-        game_path = get_csv_path("games.csv")
-        cur_play_path = get_csv_path("curPlay.csv")
-        games = []
-        with open(cur_play_path, 'r', newline='') as f:
-            cur = next(csv.reader(f))
-            if cur[0] == name:
-                with open(cur_play_path, 'w', newline='') as f:
-                    print(cur)
-                    csv.writer(f).writerow([cur[0], cur[1], new_image])
-
-            # Update games.csv
-            game_path = get_csv_path("games.csv")
-            updated_games = []
-            with open(game_path, 'r', newline='') as f:
-                for row in csv.reader(f):
-                    if row[0] == name:
-                        updated_games.append([row[0], row[1], new_image, row[3]])
-                    else:
-                        updated_games.append(row)
-
-            with open(game_path, 'w', newline='') as f:
-                csv.writer(f).writerows(updated_games)
-        clear_screen(root)
-        on_game_click(name, progress, path.get(), go_to_journal, ind, root)
 
 def get_game_index(event):
     selection = event.widget.curselection()
@@ -383,3 +242,222 @@ def prog_change(game, prog):
         print("User canceled deletion.")
         return False
 
+'''type is what sort we are doing
+0 A-Z
+1 Z-A
+2 progress (least-most)
+3 progress (most-least)
+'''
+def sort_games(type):
+    csv_path = get_csv_path("games.csv")
+    with open(csv_path, 'r', newline = '') as new_file:
+        csv_reader = csv.reader(new_file)
+        next(csv_reader)
+        sorted_list = []
+        for i in csv_reader:
+            sorted_list.append(i)
+        if(type == 0):
+            sorted_list = sorted(sorted_list, key=lambda x: x[0])
+        elif(type == 1):
+            sorted_list = sorted(sorted_list, key=lambda x: x[0], reverse = True)
+        elif(type == 2 or type == 3):
+            #0 is not started
+            #1 is in progress
+            #2 is completed
+            #3 is 100%
+            prog = [[], [], [], []]
+            for i in sorted_list:
+                if(i[1] == "Not Started"):
+                    prog[0].append(i)
+                elif(i[1] == "In Progress"):
+                    prog[1].append(i)
+                elif(i[1] == "Completed"):
+                    prog[2].append(i)
+                elif(i[1] == "100%"):
+                    prog[3].append(i)
+            sorted_list = []
+            if(type == 2):
+                for ind in range(0,4):
+                    if(prog[ind] != []):
+                        for n in prog[ind]:
+                            sorted_list.append(n)
+            elif(type == 3):
+                for ind in range(3, -1, -1):
+                    if(prog[ind] != []):
+                        for n in prog[ind]:
+                            sorted_list.append(n)
+        return sorted_list
+    return None
+
+def load_collection(root, go_to_journal, sort, game_list = None):
+    print(game_list)
+    print("loading...")
+    #for index in the listbox
+    prog_ind = tk.IntVar()
+    prog_ind.set(-1)
+    #get the scrollabale for the game options
+    frame = tk.Frame(root)
+    scrollbar = tk.Scrollbar(frame)
+    if(game_list == None):
+        game_list = []
+        #Read the CSV file
+        csv_path = get_csv_path("games.csv")
+        with open(csv_path, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            next(csv_reader)
+            for line in csv_reader:
+                print(line)
+                game_list.append(line)
+            if(game_list == []):
+                print(True)
+                game_list.append(default_game)
+                print("appended default game")
+            else:
+                if(sort == None):
+                    sort = 0
+                game_list = sort_games(sort)
+    #scrollbox
+    # Create canvas with scrollbar
+    canvas = tk.Canvas(root, borderwidth=0, background="#f0f0f0")
+    frame = tk.Frame(canvas, background="#f0f0f0")
+    vsb = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=vsb.set)
+
+    vsb.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+    canvas.create_window((0,0), window=frame, anchor="nw")
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+    frame.bind("<Configure>", on_frame_configure)
+    thumb_size = (120, 120)
+    row = 0
+    col = 0
+    cur_game = tk.StringVar()
+    cur_prog = tk.StringVar()
+    cur_link = tk.StringVar()
+    cur_desc = tk.StringVar()
+    cur_prog.set(default_game[0])
+    cur_game.set(default_game[1])
+    cur_link.set(default_game[2])
+    cur_desc.set(default_game[3])
+    image_refs = []  # To keep images alive
+    ind = 0
+    for index, game in enumerate(game_list):
+        title = game[0]
+        platform = game[1]
+        img_path = game[2]
+        img_path = get_resource_path(img_path)
+
+        # Create frame for each game
+        game_frame = tk.Frame(frame, bd=2, relief="groove", background="white")
+        game_frame.grid(row=row, column=col, padx=10, pady=10)
+
+        # Load image
+        if os.path.exists(img_path):
+            img = Image.open(img_path)
+        else:
+            img = Image.new("RGB", thumb_size, color="gray")
+        img.thumbnail(thumb_size)
+        photo = ImageTk.PhotoImage(img)
+        image_refs.append(photo)
+
+        # Image label
+        img_label = tk.Label(game_frame, image=photo)
+        img_label.bind(
+            "<Button-1>",
+            lambda event, t=title, p=platform, i = img_path, ind = index: on_game_click(t, p, i, go_to_journal, ind, root, cur_game, cur_prog, cur_link)
+        )
+        img_label.image = photo
+        img_label.pack()
+
+
+        # Text label
+        text = f"{title}\n({platform})"
+        text_label = tk.Label(game_frame, text=text, wraplength=120, justify="center")
+        text_label.pack()
+        # Arrange in grid
+        col += 1
+        if col >= 3:
+            col = 0
+            row += 1
+        ind += 1
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        frame.pack(padx=10, pady=10)
+    def on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link):
+        print("[DEBUG] on_game_click() img =", img)
+        clear_screen(root)
+        thumb_size = (120, 120)
+        cur_game.set(name)
+        cur_prog.set(progress)
+        cur_link.set(img)
+        title_label = tk.Label(root, text = name)
+        title_label.pack(pady = 10)
+        new_img = Image.new("RGB", thumb_size, color="gray")
+        if os.path.exists(img):
+            new_img = Image.open(img)
+        else:
+            new_img = Image.new("RGB", thumb_size, color="gray")
+        new_img.thumbnail(thumb_size)
+        photo = ImageTk.PhotoImage(new_img)
+        image_refs.append(photo)
+        img_label = tk.Label(root, image=photo)
+        img_label.image = photo
+        img_label.pack()
+        back_btn = tk.Button(root, text="Back to Collection", command=go_to_journal)
+        remove_btn = tk.Button(root, text="Remove Game", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
+        change_btn = tk.Button(root, text="Change Game Currently Being Played to this", command=lambda:(game_change(cur_game.get(), cur_prog.get(), cur_link.get())))
+        prog_btn = tk.Button(root, text="Change Progress", command=lambda t=name: change_prog_game(t, root, ind, go_to_journal))
+        desc_label = tk.Label(root, text = "Description:")
+        browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root)))
+        desc_text_label = tk.Label(root)
+        if(name != "N/A"):
+            desc_path = os.path.join(get_user_data_dir(), "desc", f"{name}.txt")
+            desc_btn = tk.Button(root, text="Edit Description", command=lambda:(edit_text_file(root,desc_path, 
+                        lambda:on_game_click(name, progress, img, go_to_journal, ind, root))))
+            desc_text = ""
+            with open(desc_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+                for line in lines:
+                    desc_text += line.strip()  # strip() removes trailing newline
+            desc_text_label.config(text = desc_text)
+            desc_label.pack(pady = 10)
+            desc_text_label.pack(pady = 10)
+            desc_btn.pack(pady = 10)
+            browse_btn.pack(pady = 10)
+            prog_btn.pack(pady = 10)
+        if(name != "N/A"):    
+            change_btn.pack(pady=10)
+            remove_btn.pack(pady=10)
+        back_btn.pack(side="left", padx=20)
+
+        def on_img_click(name, progress, go_to_journal, ind, root):
+            clear_screen(root)
+            path = tk.StringVar()
+            temp_label = tk.Label(root)
+            browse_image(path, temp_label)
+            new_image = path.get()
+            print("[DEBUG] New image path selected:", new_image)
+            game_path = get_csv_path("games.csv")
+            cur_play_path = get_csv_path("curPlay.csv")
+            games = []
+            with open(cur_play_path, 'r', newline='') as f:
+                cur = next(csv.reader(f))
+                if cur[0] == name:
+                    with open(cur_play_path, 'w', newline='') as f:
+                        print(cur)
+                        csv.writer(f).writerow([cur[0], cur[1], new_image])
+
+                # Update games.csv
+                game_path = get_csv_path("games.csv")
+                updated_games = []
+                with open(game_path, 'r', newline='') as f:
+                    for row in csv.reader(f):
+                        if row[0] == name:
+                            updated_games.append([row[0], row[1], new_image, row[3]])
+                        else:
+                            updated_games.append(row)
+
+                with open(game_path, 'w', newline='') as f:
+                    csv.writer(f).writerows(updated_games)
+            clear_screen(root)
+            on_game_click(name, progress, path.get(), go_to_journal, ind, root)

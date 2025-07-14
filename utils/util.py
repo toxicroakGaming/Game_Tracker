@@ -28,6 +28,7 @@ default_game = [
     r"ui\desc\def_desc.txt"
 ]
 background_data = {"label": None, "img": None}
+games_holder = {"games": None, "sort": None}
 
 
 #we want to create the CSV's needed if they dont exist

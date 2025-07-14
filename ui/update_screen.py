@@ -20,9 +20,11 @@ def load_update_screen(root, go_to_home):
     "\n1.0.5\n - Revamped collection screen. Now includes images" + 
     "\n - Current game being played also includes an image on the home screen\n" +
     " - *mini update to 1.0.5* Added new default background\n" + 
-    "1.0.6\n" +
+    "\n1.0.6\n" +
     " - bugfixes" + 
-    " - made everytinh persistent", font=("Arial", 10))
+    " - made everything persistent\n" + 
+    "\n1.0.7\n" + 
+    "- added sorting features on the collections screen", font=("Arial", 10))
     label2.pack(pady=20)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
