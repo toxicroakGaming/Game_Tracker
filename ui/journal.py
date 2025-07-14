@@ -184,7 +184,7 @@ def load_add_screen(root, go_to_home):
 def add_options(root):
     progress_var = StringVar(root)
     progress_var.set("Not Started")
-    values = ["Not Started", "In Progress", "Completed", "100%"]
+    values = ["Not Started", "In Progress", "Some progress, not completed", "Completed", "100%"]
     for text in values:
         Radiobutton(root, text = text, variable = progress_var, value = text, indicator = 0, 
         background = "light blue").pack(fill=X, ipady=5)
@@ -265,16 +265,18 @@ def sort_games(type):
             #1 is in progress
             #2 is completed
             #3 is 100%
-            prog = [[], [], [], []]
+            prog = [[], [], [], [], []]
             for i in sorted_list:
                 if(i[1] == "Not Started"):
                     prog[0].append(i)
-                elif(i[1] == "In Progress"):
+                if(i[1] == "Some progress, not completed"):
                     prog[1].append(i)
-                elif(i[1] == "Completed"):
+                elif(i[1] == "In Progress"):
                     prog[2].append(i)
-                elif(i[1] == "100%"):
+                elif(i[1] == "Completed"):
                     prog[3].append(i)
+                elif(i[1] == "100%"):
+                    prog[4].append(i)
             sorted_list = []
             if(type == 2):
                 for ind in range(0,4):
