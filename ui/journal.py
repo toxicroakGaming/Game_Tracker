@@ -5,9 +5,6 @@ from tkinter import *
 from utils.util import *
 
 
-class GameListRef:
-    def __init__(self, val=None):
-        self.val = val
 
 #The main work of the "collections" screen
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
@@ -15,7 +12,6 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     label = tk.Label(root, text = "Collection", font = ("Arial", 16))
     sel_label = tk.Label(root, text = "No Game Currently Selected", font = ("Arial", 16))
     #get the games from the CSV. Make a list with every game and the status
-    games_ref = GameListRef()
     load_collection(root, go_to_journal, games_holder["sort"], games_holder["games"])
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
     add_btn = tk.Button(root, text="Add New Game", command=go_to_add)
