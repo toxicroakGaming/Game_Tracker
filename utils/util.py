@@ -4,6 +4,7 @@ import csv
 import sys, os
 from PIL import Image, ImageTk
 import shutil
+import re
 
 #this file contains utility functions taht can be used in other files
 
@@ -296,3 +297,8 @@ def get_persistent_bg_image():
             return saved_path
         # Else fallback to bundled default
         return get_resource_path("ui/media/bg/default_bg.png")
+
+def sanitize_filename(name):
+    # Remove or replace characters not allowed in filenames
+    name = name.strip()
+    return re.sub(r'[\\/*?:"<>|\'\,`]', '', name)

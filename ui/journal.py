@@ -409,7 +409,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root)))
         desc_text_label = tk.Label(root)
         if(name != "N/A"):
-            desc_path = os.path.join(get_user_data_dir(), "desc", f"{name}.txt")
+            desc_path = os.path.join(get_user_data_dir(), "desc", f"{sanitize_filename(name)}.txt")
             desc_btn = tk.Button(root, text="Edit Description", command=lambda:(edit_text_file(root,desc_path, 
                         lambda:on_game_click(name, progress, img, go_to_journal, ind, root))))
             desc_text = ""
