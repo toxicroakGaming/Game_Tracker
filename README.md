@@ -1,4 +1,4 @@
-# Game_Tracker 1.0.6
+# Game_Tracker 1.0.8
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -17,13 +17,14 @@
 - Add custom backgrounds or use the built-in ones
 - Change progress/status of games after they are added to the list to ensure proper progress tracking
 - Each game has its own page in the descriptions screen where you can edit the description
+- When you choose a new game, you can pick or have the wheel decide for you
 
 **BUGFIXES**
-- fixed issues when using bad characters in game names
+- fixed issues when changing images of games and the descriptions
+- overall stability fixes
 
 **FEATURES TO ADD INCLUDE**
 
-- When you choose a new game, you can pick or have the wheel decide for you (1.0.8?)
 - Create entries and have a blog-like section for each game. There's a description,
   but I want to improve on this more (will be done post 1.1.0)
 - Each game you have will be added to a "hall of fame" where you can view progress (post 1.1.0)
