@@ -113,7 +113,7 @@ def change_prog_game(name, root, ind, go_to_journal):
         game_name = tk.Label(root, text = "Game changing: " + name)
         game_name.pack(pady = 20)
         progress_var = add_options(root)
-        change_btn = tk.Button(root, text="Change Progress", command=lambda:on_click(name, progress_var.get()))
+        change_btn = tk.Button(root, text="Change Progress", command=lambda:(on_click(name, progress_var.get())))
         back_btn = tk.Button(root, text="Back to Home", command=go_to_journal)
         change_btn.pack(pady=20)
         back_btn.pack(pady=20)
@@ -130,19 +130,26 @@ def change_prog_game(name, root, ind, go_to_journal):
                         change_play_game(name, progress, cur[2])
                 csv_path = get_csv_path("games.csv")
                 #read the games into a temporary list so that we can write from it
+                temp = []
                 with open(csv_path, 'r', newline = '') as new_file:
                     csv_reader = csv.reader(new_file)
+                    print("temp")
                     for i in csv_reader:
                         temp.append(i)
+                        print(i)
+                    print("contents of temp")
+                    print(temp)
                 #write temp to the csv
                 with open(csv_path, 'w', newline = '') as new_file:
                     index = 0
                     csv_writer = csv.writer(new_file)
                     for i in temp:
-                        if(index == ind + 1):
+                        if(index == ind):
+                            print("temp")
                             data = [name, progress, i[2], i[3]]
                             csv_writer.writerow(data)
                         else:
+                            print(i)
                             csv_writer.writerow(temp[index])
                         index += 1
     else:
@@ -229,7 +236,7 @@ def game_change(game, prog, image):
 def prog_change(game, prog):
     if(game == "N/A"):
         result = messagebox.askyesno("Invalid", "Can't change progress due to N/A state")
-        return
+        return False
     result = messagebox.askyesno("Confirm New Game Progress", "Are you sure you want to change  " 
                     + game + " progress to " + prog.get() + "?")
     if result:
@@ -363,7 +370,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         img_label = tk.Label(game_frame, image=photo)
         img_label.bind(
             "<Button-1>",
-            lambda event, t=title, p=platform, i = img_path, ind = index: on_game_click(t, p, i, go_to_journal, ind, root, cur_game, cur_prog, cur_link)
+            lambda event, t=title, p=platform, i = img_path, ind = index + 1: on_game_click(t, p, i, go_to_journal, ind, root, cur_game, cur_prog, cur_link)
         )
         img_label.image = photo
         img_label.pack()
@@ -406,12 +413,12 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         change_btn = tk.Button(root, text="Change Game Currently Being Played to this", command=lambda:(game_change(cur_game.get(), cur_prog.get(), cur_link.get())))
         prog_btn = tk.Button(root, text="Change Progress", command=lambda t=name: change_prog_game(t, root, ind, go_to_journal))
         desc_label = tk.Label(root, text = "Description:")
-        browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root)))
+        browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
         desc_text_label = tk.Label(root)
         if(name != "N/A"):
             desc_path = os.path.join(get_user_data_dir(), "desc", f"{sanitize_filename(name)}.txt")
             desc_btn = tk.Button(root, text="Edit Description", command=lambda:(edit_text_file(root,desc_path, 
-                        lambda:on_game_click(name, progress, img, go_to_journal, ind, root))))
+                        lambda:on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link))))
             desc_text = ""
             with open(desc_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
@@ -428,7 +435,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
             remove_btn.pack(pady=10)
         back_btn.pack(side="left", padx=20)
 
-        def on_img_click(name, progress, go_to_journal, ind, root):
+        def on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link):
             clear_screen(root)
             path = tk.StringVar()
             temp_label = tk.Label(root)
@@ -448,14 +455,16 @@ def load_collection(root, go_to_journal, sort, game_list = None):
                 # Update games.csv
                 game_path = get_csv_path("games.csv")
                 updated_games = []
+                temp = []
                 with open(game_path, 'r', newline='') as f:
                     for row in csv.reader(f):
                         if row[0] == name:
                             updated_games.append([row[0], row[1], new_image, row[3]])
+                            temp = row[2]
                         else:
                             updated_games.append(row)
 
                 with open(game_path, 'w', newline='') as f:
                     csv.writer(f).writerows(updated_games)
             clear_screen(root)
-            on_game_click(name, progress, path.get(), go_to_journal, ind, root)
+            on_game_click(name, progress, path.get(), go_to_journal, ind, root, cur_game, cur_prog, cur_link)

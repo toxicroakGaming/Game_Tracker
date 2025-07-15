@@ -1,6 +1,7 @@
 import tkinter as tk
 from ui.update_screen import load_update_screen
 from ui.home_screen import load_home_screen
+from ui.spinner import load_spin_screen
 from ui.options_screen import load_image_screen
 from ui.journal import load_journal_screen, load_add_screen
 from PIL import Image, ImageTk
@@ -9,9 +10,13 @@ import sys, os
 from utils.state import *
 from utils.util import *
 
+def show_spin_screen():
+    clear_screen(root)
+    load_spin_screen(root, show_home_screen)
+
 def show_home_screen():
     clear_screen(root)
-    load_home_screen(root, show_update_screen, show_journal_screen, show_image_screen)
+    load_home_screen(root, show_update_screen, show_journal_screen, show_image_screen, show_spin_screen)
 
 def show_update_screen():
     clear_screen(root)

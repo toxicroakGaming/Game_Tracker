@@ -24,7 +24,9 @@ def load_update_screen(root, go_to_home):
     " - bugfixes" + 
     " - made everything persistent\n" + 
     "\n1.0.7\n" + 
-    "- added sorting features on the collections screen", font=("Arial", 10))
+    "- added sorting features on the collections screen\n" + 
+    "\n1.0.8\n" +
+    " - Added the choice to let the program randomly choose a game for you to play", font=("Arial", 10))
     label2.pack(pady=20)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
