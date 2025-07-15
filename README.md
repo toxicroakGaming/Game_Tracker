@@ -19,23 +19,21 @@
 - Each game has its own page in the descriptions screen where you can edit the description
 
 **BUGFIXES**
-- fixed persistence issues
+- fixed issues when using bad characters in game names
 
 **FEATURES TO ADD INCLUDE**
 
-- When you choose a new game, you can pick or have the wheel decide for you
-- Create entries and have a blog-like section for each game
-- Each game you have will be added to a "hall of fame" where you can view progress
-- Track the progress of each game in a "progress" section
-- Include tags on each game to categorize them for yourself
-- Add text as well as media to each game
-
+- When you choose a new game, you can pick or have the wheel decide for you (1.0.8?)
+- Create entries and have a blog-like section for each game. There's a description,
+  but I want to improve on this more (will be done post 1.1.0)
+- Each game you have will be added to a "hall of fame" where you can view progress (post 1.1.0)
+- Include tags on each game to categorize them for yourself (post 1.1.0)
+  
 # Possible additions down the line
 
 - Online functionality to make a social media-like app for keeping up with similar games
 - Making achievements based off user feedback to help make the process more interactive
 
 ### This verion will be the lite version. For a more updated and optimized version,
-### a link will be provided upon starting that.
-
-Does this seem basic? This is the first version! further refinement will be done
+### a link will be provided upon starting that. This will not be done until this version
+### is completely done and functional
