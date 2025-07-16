@@ -35,6 +35,6 @@
 - Online functionality to make a social media-like app for keeping up with similar games
 - Making achievements based off user feedback to help make the process more interactive
 
-### This verion will be the lite version. For a more updated and optimized version,
+### This version will be the lite version. For a more updated and optimized version,
 ### a link will be provided upon starting that. This will not be done until this version
 ### is completely done and functional
