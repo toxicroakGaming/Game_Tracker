@@ -302,7 +302,6 @@ def load_collection(root, go_to_journal, sort, game_list = None):
     prog_ind.set(-1)
     #get the scrollabale for the game options
     frame = tk.Frame(root)
-    scrollbar = tk.Scrollbar(frame)
     if(game_list == None):
         game_list = []
         #Read the CSV file
@@ -323,17 +322,35 @@ def load_collection(root, go_to_journal, sort, game_list = None):
                 game_list = sort_games(sort)
     #scrollbox
     # Create canvas with scrollbar
-    canvas = tk.Canvas(root, borderwidth=0, background="#f0f0f0")
+    container = tk.Frame(root)
+    container.pack(side = "left", fill="both", expand=True)
+    canvas = tk.Canvas(container, borderwidth=0, background="#f0f0f0")
     frame = tk.Frame(canvas, background="#f0f0f0")
-    vsb = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+    vsb = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=vsb.set)
 
     vsb.pack(side="right", fill="y")
     canvas.pack(side="left", fill="both", expand=True)
-    canvas.create_window((0,0), window=frame, anchor="nw")
+    scroll_frame = tk.Frame(canvas, background="#f0f0f0")
+    canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
     def on_frame_configure(event):
         canvas.configure(scrollregion=canvas.bbox("all"))
+
+    def resize_canvas(event):
+        canvas.itemconfig(canvas_window, width=event.width)
+
     frame.bind("<Configure>", on_frame_configure)
+    canvas.bind("<Configure>", resize_canvas)
+
+    def _on_mousewheel(event):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    scroll_frame.bind("<Configure>", on_frame_configure)
+    canvas.bind("<Configure>", resize_canvas)
+    canvas.bind_all("<MouseWheel>", _on_mousewheel)
+
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
     thumb_size = (120, 120)
     row = 0
     col = 0
@@ -354,7 +371,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         img_path = get_resource_path(img_path)
 
         # Create frame for each game
-        game_frame = tk.Frame(frame, bd=2, relief="groove", background="white")
+        game_frame = tk.Frame(scroll_frame, bd=2, relief="groove", background="white")
         game_frame.grid(row=row, column=col, padx=10, pady=10)
 
         # Load image
@@ -386,8 +403,8 @@ def load_collection(root, go_to_journal, sort, game_list = None):
             col = 0
             row += 1
         ind += 1
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         frame.pack(padx=10, pady=10)
+
     def on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link):
         print("[DEBUG] on_game_click() img =", img)
         clear_screen(root)
