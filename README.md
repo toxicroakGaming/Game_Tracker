@@ -20,8 +20,8 @@
 - When you choose a new game, you can pick or have the wheel decide for you
 
 **BUGFIXES**
-- fixed issues when changing images of games and the descriptions
-- overall stability fixes
+- Fixed issues with progress not being saved correctly
+- Fixed scrolling issues on the collections screen
 
 **FEATURES TO ADD INCLUDE**
 

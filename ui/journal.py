@@ -144,8 +144,12 @@ def change_prog_game(name, root, ind, go_to_journal):
                     index = 0
                     csv_writer = csv.writer(new_file)
                     for i in temp:
-                        if(index == ind):
+                        if(name == i[0]):
                             print("temp")
+                            print(name)
+                            print(progress)
+                            print(i[2])
+                            print(i[3])
                             data = [name, progress, i[2], i[3]]
                             csv_writer.writerow(data)
                         else:
@@ -187,7 +191,7 @@ def load_add_screen(root, go_to_home):
 def add_options(root):
     progress_var = StringVar(root)
     progress_var.set("Not Started")
-    values = ["Not Started", "In Progress", "Some progress, not completed", "Completed", "100%"]
+    values = ["Not Started", "In Progress", "Some progress not completed", "Completed", "100%"]
     for text in values:
         Radiobutton(root, text = text, variable = progress_var, value = text, indicator = 0, 
         background = "light blue").pack(fill=X, ipady=5)
