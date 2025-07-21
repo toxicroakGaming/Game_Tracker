@@ -3,8 +3,10 @@ import csv
 import os, sys
 from tkinter import *
 from utils.util import *
+import utils.Date
 
-
+#GAMES.CSV HEADER
+# ["title", "platform", "image", "desc", "added", "start", "last", completed]
 
 #The main work of the "collections" screen
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
@@ -86,7 +88,8 @@ def write_games(games, CSV_FILE, head):
     with open(g, "w", newline="") as f:
         writer = csv.writer(f)
         if(head):
-            writer.writerow(["title", "platform", "image", "desc"])  # write header back
+            #these are the columns we want to have in our games.csv.
+            writer.writerow(["title", "platform", "image", "desc", "added", "start", "last", "completed"])  # write header back
         for i in games:
             print("I is " + i[0] + " " + i[1])
             writer.writerow(i)
@@ -95,11 +98,34 @@ def write_games(games, CSV_FILE, head):
 #change the game in curPlay.csv to the selected game
 def change_play_game(name, progress, image):
     print("this is being called 1234 " + name)
+    print(progress)
     data = [name, progress, image]
     csv_path = get_csv_path("curPlay.csv")
     with open(csv_path, 'w', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
+    csv_path = get_csv_path("games.csv")
+    games = []
+    with open(csv_path, 'r', newline = '') as f:
+        csv_reader = csv.reader(f)
+        for i in csv_reader:
+            if(i[1] == "In Progress"):
+                i[6] = current_time()
+                i[1] = "Some progress not completed"
+            if(name == i[0]):
+                if(i[1] == "Not Started"):
+                    i[6] = current_time()
+                    i[5] = current_time()
+                print("changing something")
+                i[1] = "In Progress"
+            print(i)
+            games.append(i)
+    with open(csv_path, 'w', newline = '') as new_write:
+        csv_writer = csv.writer(new_write)
+        for i in games:
+            print("NEW")
+            print(i)
+            csv_writer.writerow(i)
     print(data)
 
 def change_prog_game(name, root, ind, go_to_journal):
@@ -142,14 +168,23 @@ def change_prog_game(name, root, ind, go_to_journal):
                     index = 0
                     csv_writer = csv.writer(new_file)
                     for i in temp:
+                        if(i[2] == "In Progress"):
+                            data = [name, progress, "Some progress not completed", i[3], i[4], i[5], current_time(), i[7]]
+                            csv_writer.writerow(data)
                         if(name == i[0]):
                             print("temp")
                             print(name)
                             print(progress)
                             print(i[2])
                             print(i[3])
-                            data = [name, progress, i[2], i[3]]
-                            csv_writer.writerow(data)
+                            if(i[2] != "Completed" and [progress == "Completed"]):
+                                data = [name, progress, i[2], i[3], i[4], current_time(), current_time(), current_time()]
+                            else:
+                                if(i[2] == "Not Started"):
+                                    data = [name, progress, i[2], i[3], i[4], current_time(), current_time(), i[7]]
+                                else:
+                                    data = [name, progress, i[2], i[3], i[4], i[5], current_time(), i[7]]
+                                csv_writer.writerow(data)
                         else:
                             print(i)
                             csv_writer.writerow(temp[index])
@@ -198,7 +233,13 @@ def add_options(root):
 #Update the CSV with the new game, which is the name and the progress
 def add_to_list(name, progress, image):
     desc_file = "ui/desc/" + name + ".txt"
-    data = [name, progress, image, desc_file]
+    if(progress != "Not Started"):
+        if(progress == "Completed" or progress == "100%"):
+            data = [name, progress, image, desc_file, current_time(), current_time(), current_time(), current_time()]
+        else:
+            data = [name, progress, image, desc_file, current_time(), current_time(), current_time(), "N/A"]
+    else:
+        data = [name, progress, image, desc_file, current_time(), "N/A", "N/A", "N/A"]
     csv_path = get_csv_path("games.csv")
     with open(csv_path, 'a', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
@@ -429,7 +470,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         img_label.pack()
         back_btn = tk.Button(root, text="Back to Collection", command=go_to_journal)
         remove_btn = tk.Button(root, text="Remove Game", command=lambda: (on_remove(cur_game.get()), go_to_journal()))
-        change_btn = tk.Button(root, text="Change Game Currently Being Played to this", command=lambda:(game_change(cur_game.get(), cur_prog.get(), cur_link.get())))
+        change_btn = tk.Button(root, text="Change Game Currently Being Played to this", command=lambda:(game_change(cur_game.get(), "In Progress", cur_link.get())))
         prog_btn = tk.Button(root, text="Change Progress", command=lambda t=name: change_prog_game(t, root, ind, go_to_journal))
         desc_label = tk.Label(root, text = "Description:")
         browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
@@ -478,7 +519,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
                 with open(game_path, 'r', newline='') as f:
                     for row in csv.reader(f):
                         if row[0] == name:
-                            updated_games.append([row[0], row[1], new_image, row[3]])
+                            updated_games.append([row[0], row[1], new_image, row[3], row[4], row[5], row[6], row[7]])
                             temp = row[2]
                         else:
                             updated_games.append(row)

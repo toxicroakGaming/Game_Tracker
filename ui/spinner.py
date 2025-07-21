@@ -67,7 +67,7 @@ def change_to_play(game):
                 print(i[1] + "   prog")
                 print(i[2])
                 print(i[3])
-                cur_games.append([i[0], "Some progress, not completed", i[2], i[3]])
+                cur_games.append([i[0], "Some progress, not completed", i[2], i[3], i[4], i[5], current_time(), i[7]])
             else:
                 cur_games.append(i)
     csv_path = get_csv_path("games.csv")

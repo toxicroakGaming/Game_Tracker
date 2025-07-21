@@ -5,6 +5,7 @@ import sys, os
 from PIL import Image, ImageTk
 import shutil
 import re
+from utils.Date import current_time
 
 #this file contains utility functions taht can be used in other files
 
@@ -21,12 +22,19 @@ def get_resource_path(relative_path):
 
 #for keeping references and not getting garbage collected
 #the defaults for if there is no game
+# ["title", "platform", "image", "desc", "added", "start", "last", "completed"]
+# added is when it was added, start is when it was started, last is when it was last played
+# completed is when it was completed
 default_game = [
     "N/A",
     "N/A",
     r"ui\media\games\no_image.jpg",
     r"ui\desc\def_desc.txt",
-    r"ui\desc\def_desc.txt"
+    r"ui\desc\def_desc.txt",
+    current_time(),
+    "N/A",
+    "N/A",
+    "NA"
 ]
 background_data = {"label": None, "img": None}
 games_holder = {"games": None, "sort": None}
@@ -302,3 +310,49 @@ def sanitize_filename(name):
     # Remove or replace characters not allowed in filenames
     name = name.strip()
     return re.sub(r'[\\/*?:"<>|\'\,`]', '', name)
+
+
+def check_update():
+    csv_path = get_csv_path("games.csv")
+    with open(csv_path, 'r') as f:
+        head = csv.DictReader(f)
+        headers = head.fieldnames
+        #if we make any updates in the future, we might need to change this
+        missing = headers == None or [col for col in ["added"] if col not in headers]
+        if missing:
+            print("Missing columns:", missing)
+        #some columns were added later on, so if they are not here, we need to make them.
+        if(missing):
+            header = [["title", "platform", "image", "desc", "added", "start", "last", "completed"]]
+            with open(csv_path, 'r', newline = '') as w:
+                reader = csv.reader(w)
+                #get the games
+                games = header
+                for i in reader:
+                    #added
+                    i.append(current_time())
+                    #started, we know that if it doesnt have progress "not started", then you started it before
+                    #since we dont know when, all the parameters will be set to today
+                    if(i[1] != "Not Started"):
+                        i.append(current_time())
+                        i.append(current_time())
+                        i.append(current_time())
+                        if(i[1] == "100%" or i[1] == "Completed"):
+                            i.append(current_time())
+                        else:
+                            i.append("N/A")
+                    else:
+                        i.append("N/A")
+                        #last
+                        i.append("N/A")
+                        
+                        #completed
+                        i.append("N/A")
+                    games.append(i)
+                with open(csv_path, 'w', newline = '') as new_file:
+                    writer = csv.writer(new_file)
+                    ind = 0
+                    for j in games:
+                        print("this is j")
+                        print(j)
+                        writer.writerow(j)

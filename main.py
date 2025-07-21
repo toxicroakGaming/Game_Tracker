@@ -56,6 +56,8 @@ if (ensure_csv_exists("curPlay.csv")):
     with open(csv_path, 'w', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
+#for importing from pre 1.1.1, function is in util.py
+check_update()
 # Start at home screen
 show_home_screen()
 

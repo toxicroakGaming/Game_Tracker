@@ -2,7 +2,7 @@ import tkinter as tk
 
 def load_update_screen(root, go_to_home):
     label = tk.Label(root, text="Updates\n" + 
-    "CURRENT VERSION: 1.1.0", font=("Arial", 16))
+    "CURRENT VERSION: 1.1.1", font=("Arial", 16))
     label.pack(pady=20)
 
     label2 = tk.Label(root, text="1.0.0:\n - Added Updates screen\n - Changed home screen\n - Added Collection screen"+ 
@@ -29,7 +29,9 @@ def load_update_screen(root, go_to_home):
     " - Added the choice to let the program randomly choose a game for you to play" + 
     "\n1.1.0\n" + 
     " - UI changes\n" + 
-    " - bugfixes", font=("Arial", 10))
+    " - bugfixes\n" + 
+    "\n1.1.1\n" +
+    " - Stability update, future plans added behind the scenes", font=("Arial", 10))
     label2.pack(pady=20)
 
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
