@@ -10,7 +10,6 @@ from utils.util import *
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     #collections label
     label = tk.Label(root, text = "Collection", font = ("Arial", 16))
-    sel_label = tk.Label(root, text = "No Game Currently Selected", font = ("Arial", 16))
     #get the games from the CSV. Make a list with every game and the status
     load_collection(root, go_to_journal, games_holder["sort"], games_holder["games"])
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
@@ -28,7 +27,6 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
                             games_holder.update({"games": sort_games(3), "sort" : 3}),
                             load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
     label.pack(pady=20)
-    sel_label.pack()
     add_btn.pack(pady=20)
     az_btn.pack(pady=20)
     za_btn.pack(pady=20)
@@ -276,7 +274,7 @@ def sort_games(type):
             for i in sorted_list:
                 if(i[1] == "Not Started"):
                     prog[0].append(i)
-                if(i[1] == "Some progress, not completed"):
+                if(i[1] == "Some progress not completed"):
                     prog[1].append(i)
                 elif(i[1] == "In Progress"):
                     prog[2].append(i)
@@ -403,7 +401,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         text_label.pack()
         # Arrange in grid
         col += 1
-        if col >= 3:
+        if col >= 5:
             col = 0
             row += 1
         ind += 1
