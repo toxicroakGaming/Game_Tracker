@@ -13,7 +13,7 @@ def get_root_path():
         return os.path.abspath(os.getcwd())
 
 
-def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin):
+def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin, go_to_achieve):
     label = tk.Label(root, text="Welcome to Game Tracker!", font=("Arial", 16))
     label.pack(pady=20)
     #read curPlay.csv to get the current game. It is automatically made to "N/A,N/A"
@@ -43,9 +43,11 @@ def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin)
     col_btn = tk.Button(root, text="Collection", command=go_to_journal)
     ch_btn = tk.Button(root, text="Wheel of Choices", command=go_to_spin)
     bg_btn = tk.Button(root, text="Change Background", command=go_to_image)
+    ach_btn = tk.Button(root, text="Achievements", command=go_to_achieve)
     play_label.pack()
     btn.pack()
     col_btn.pack()
+    ach_btn.pack()
     ch_btn.pack(pady=20)
     bg_btn.pack()
     label.pack(pady=20)

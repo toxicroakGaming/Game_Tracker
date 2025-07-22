@@ -9,6 +9,11 @@ import csv
 import sys, os
 from utils.state import *
 from utils.util import *
+from utils.achieve import *
+global app_frame
+def show_achieve_screen():
+    clear_screen(root)
+    load_achieve_screen(root, show_home_screen)
 
 def show_spin_screen():
     clear_screen(root)
@@ -16,7 +21,7 @@ def show_spin_screen():
 
 def show_home_screen():
     clear_screen(root)
-    load_home_screen(root, show_update_screen, show_journal_screen, show_image_screen, show_spin_screen)
+    load_home_screen(root, show_update_screen, show_journal_screen, show_image_screen, show_spin_screen, show_achieve_screen)
 
 def show_update_screen():
     clear_screen(root)
@@ -57,8 +62,12 @@ if (ensure_csv_exists("curPlay.csv")):
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
 #for importing from pre 1.1.1, function is in util.py
+ensure_csv_exists("achieve.csv")
 check_update()
+#load from the csv file into our instance
+load_achieve()
 # Start at home screen
 show_home_screen()
-
+app_frame = tk.Frame(root)
+app_frame.pack()
 root.mainloop()

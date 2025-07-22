@@ -5,6 +5,8 @@ import os, sys
 from tkinter import *
 import time
 import random
+from utils.achieve import *
+import utils.state
 
 def load_spin_screen(root, go_to_home):
     title_label = tk.Label(root, text = "Choose a new game!", font = ("Arial", 16))
@@ -19,6 +21,7 @@ def load_spin_screen(root, go_to_home):
     back_btn.pack(pady=20)
 
 def choose_game(game_label, ind = 200):
+    global app_frame
     choice = ""
     cur_play_path = get_csv_path("games.csv")
     with open(cur_play_path, 'r', newline='') as f:
@@ -41,10 +44,13 @@ def choose_game(game_label, ind = 200):
         game_label.after(10, lambda: choose_game(game_label, ind))
     else:
         print(f"[INFO] Final choice: {choice}")
+        check_achieve_spin(app_frame)
         result = messagebox.askyesno("Change Game", "Would you like to change the game currently being played to " + choice + "?")
         if(result):
+            utils.state.cur_no_game = 0
             change_to_play(choice)
         else:
+            check_achieve_pick(app_frame)
             print("user cancelled. game didnt change")
 
 def change_to_play(game):

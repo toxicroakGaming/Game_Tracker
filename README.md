@@ -1,4 +1,4 @@
-# Game_Tracker 1.1.1
+# Game_Tracker 1.1.2
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -20,14 +20,13 @@
 - When you choose a new game, you can pick or have the wheel decide for you
 
 **WHATS NEW**
-- ...Nothing (or is there? Check out the code if you want an in-depth breakdown)
+- Added achievements! This feature is most likely very buggy still, so please report any issues to me!
 
 **BUGFIXES**
 - Progress sorting bugfix
 
 **FEATURES TO ADD INCLUDE**
 
-- overall achievments. Things to encourage use
 - statistics page
 - Ability to create tags that you can sort by
 - Ability to create specific progress tracking per game

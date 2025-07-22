@@ -4,11 +4,12 @@ import os, sys
 from tkinter import *
 from utils.util import *
 import utils.Date
-
+from utils.achieve import *
+import utils.state
 #GAMES.CSV HEADER
 # ["title", "platform", "image", "desc", "added", "start", "last", completed]
-
 #The main work of the "collections" screen
+app_frame = None
 def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     #collections label
     label = tk.Label(root, text = "Collection", font = ("Arial", 16))
@@ -97,6 +98,7 @@ def write_games(games, CSV_FILE, head):
 
 #change the game in curPlay.csv to the selected game
 def change_play_game(name, progress, image):
+    global app_frame
     print("this is being called 1234 " + name)
     print(progress)
     data = [name, progress, image]
@@ -118,6 +120,7 @@ def change_play_game(name, progress, image):
                     i[5] = current_time()
                 print("changing something")
                 i[1] = "In Progress"
+                check_achieve_play(app_frame)
             print(i)
             games.append(i)
     with open(csv_path, 'w', newline = '') as new_write:
@@ -168,8 +171,12 @@ def change_prog_game(name, root, ind, go_to_journal):
                     index = 0
                     csv_writer = csv.writer(new_file)
                     for i in temp:
-                        if(i[2] == "In Progress"):
-                            data = [name, progress, "Some progress not completed", i[3], i[4], i[5], current_time(), i[7]]
+                        if(i[1] == "In Progress"):
+                            if(name == i[0] and progress == "Completed"):
+                                check_achieve_cons()
+                            else:
+                                cur_no_game = 0
+                            data = [name, progress, i[2], i[3], i[4], i[5], current_time(), i[7]]
                             csv_writer.writerow(data)
                         if(name == i[0]):
                             print("temp")
@@ -177,10 +184,11 @@ def change_prog_game(name, root, ind, go_to_journal):
                             print(progress)
                             print(i[2])
                             print(i[3])
-                            if(i[2] != "Completed" and [progress == "Completed"]):
+                            if(i[1] != "Completed" and progress == "Completed"):
+                                check_achieve_time(name, root)
                                 data = [name, progress, i[2], i[3], i[4], current_time(), current_time(), current_time()]
                             else:
-                                if(i[2] == "Not Started"):
+                                if(i[1] == "Not Started"):
                                     data = [name, progress, i[2], i[3], i[4], current_time(), current_time(), i[7]]
                                 else:
                                     data = [name, progress, i[2], i[3], i[4], i[5], current_time(), i[7]]
@@ -232,6 +240,7 @@ def add_options(root):
 
 #Update the CSV with the new game, which is the name and the progress
 def add_to_list(name, progress, image):
+    global app_frame
     desc_file = "ui/desc/" + name + ".txt"
     if(progress != "Not Started"):
         if(progress == "Completed" or progress == "100%"):
@@ -338,6 +347,8 @@ def sort_games(type):
     return None
 
 def load_collection(root, go_to_journal, sort, game_list = None):
+    utils.state.num_completed = 0
+    no_image = False
     print(game_list)
     print("loading...")
     #for index in the listbox
@@ -355,6 +366,11 @@ def load_collection(root, go_to_journal, sort, game_list = None):
             for line in csv_reader:
                 print(line)
                 game_list.append(line)
+                if(line[1] == "Completed" or line[1] == "100%"):
+                    print("completed game here")
+                    utils.state.num_completed += 1
+                if(line[2] == r"ui\media\games\no_image.jpg"):
+                    no_image = True
             if(game_list == []):
                 print(True)
                 game_list.append(default_game)
@@ -371,7 +387,11 @@ def load_collection(root, go_to_journal, sort, game_list = None):
     frame = tk.Frame(canvas, background="#f0f0f0")
     vsb = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=vsb.set)
-
+    if(no_image):
+        check_achieve_image(app_frame)
+    print("here we go")
+    print(utils.state.num_completed)
+    check_achieve_complete(app_frame)
     vsb.pack(side="right", fill="y")
     canvas.pack(side="left", fill="both", expand=True)
     scroll_frame = tk.Frame(canvas, background="#f0f0f0")
@@ -496,6 +516,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         back_btn.pack(side="left", padx=20)
 
         def on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link):
+            global app_frame
             clear_screen(root)
             path = tk.StringVar()
             temp_label = tk.Label(root)

@@ -8,7 +8,7 @@ import re
 from utils.Date import current_time
 
 #this file contains utility functions taht can be used in other files
-
+app_frame = None
 #for loading images and such, we want to get the relative path
 def get_resource_path(relative_path):
     """Returns the absolute path to a resource file (image, csv, etc.)"""
@@ -218,8 +218,8 @@ def edit_text_file(root, file_path, go_to_journal, on_back=True):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         messagebox.showinfo("Saved", "Changes saved successfully!")
+        check_achieve_write(app_frame)
         go_to_journal()
-
     save_button = tk.Button(frame, text="Save", command=lambda:(save_changes()))
     save_button.pack(side="left", padx=10, pady=10)
 
@@ -356,3 +356,17 @@ def check_update():
                         print("this is j")
                         print(j)
                         writer.writerow(j)
+    csv_path = get_csv_path("achieve.csv")
+    total_ach = 17
+    with open(csv_path, 'r') as a:
+        temp = []
+        reader = csv.reader(a)
+        for i in reader:
+            temp.append(i)
+        if(len(temp) != total_ach):
+            while(len(temp) < total_ach):
+                temp.append([0])
+        with open(csv_path, 'w', newline = '') as new_file:
+            writer = csv.writer(new_file)
+            for i in temp:
+                writer.writerow(i)
