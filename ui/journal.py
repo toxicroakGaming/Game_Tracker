@@ -146,6 +146,7 @@ def change_prog_game(name, root, ind, go_to_journal):
         back_btn.pack(pady=20)
         print("we made it!")
         def on_click(name, progress):
+            global app_frame
             data = [name, progress]
             print("yes")
             if(prog_change(name, progress_var)):
@@ -173,9 +174,10 @@ def change_prog_game(name, root, ind, go_to_journal):
                     for i in temp:
                         if(i[1] == "In Progress"):
                             if(name == i[0] and progress == "Completed"):
-                                check_achieve_cons()
+                                check_achieve_cons(app_frame)
                             else:
                                 cur_no_game = 0
+                            print(i)
                             data = [name, progress, i[2], i[3], i[4], i[5], current_time(), i[7]]
                             csv_writer.writerow(data)
                         if(name == i[0]):
@@ -364,7 +366,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
             csv_reader = csv.reader(csv_file)
             next(csv_reader)
             for line in csv_reader:
-                print(line)
+                #print(line)
                 game_list.append(line)
                 if(line[1] == "Completed" or line[1] == "100%"):
                     print("completed game here")
@@ -530,7 +532,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
                 cur = next(csv.reader(f))
                 if cur[0] == name:
                     with open(cur_play_path, 'w', newline='') as f:
-                        print(cur)
+                        #print(cur)
                         csv.writer(f).writerow([cur[0], cur[1], new_image])
 
                 # Update games.csv

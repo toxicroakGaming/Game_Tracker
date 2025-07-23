@@ -1,4 +1,4 @@
-# Game_Tracker 1.1.2
+# Game_Tracker 1.1.3
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -23,7 +23,7 @@
 - Added achievements! This feature is most likely very buggy still, so please report any issues to me!
 
 **BUGFIXES**
-- Progress sorting bugfix
+- bugfixes surround achievements 
 
 **FEATURES TO ADD INCLUDE**
 

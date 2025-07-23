@@ -1,11 +1,11 @@
 import tkinter as tk
 
 def load_update_screen(root, go_to_home):
-    label = tk.Label(root, text="Updates\n" + 
-    "CURRENT VERSION: 1.1.2", font=("Arial", 16))
-    label.pack(pady=20)
+    do_screen(root, go_to_home)
 
-    label2 = tk.Label(root, text="1.0.0:\n - Added Updates screen\n - Changed home screen\n - Added Collection screen"+ 
+def do_screen(root, go_to_home, width = 300, height = 20):
+    
+    message = ("1.0.0:\n - Added Updates screen\n - Changed home screen\n - Added Collection screen"+ 
     " where you can see your list of games and add to the list\n" +
     "\n1.0.1:\n - Changed collections and home screens\n" + 
     " - different list system for collection list\n" +
@@ -33,8 +33,32 @@ def load_update_screen(root, go_to_home):
     "\n1.1.1\n" +
     " - Stability update, future plans added behind the scenes\n" +
     "\n1.1.2\n" + 
-    " - Added achievements\n", font=("Arial", 10))
-    label2.pack(pady=20)
-
+    " - Added achievements\n" + 
+    "\n1.1.3\n" + 
+    " - major bugfixes")
+    
+    label = tk.Label(root, text="Updates\n" + 
+    "CURRENT VERSION: 1.1.2", font=("Arial", 16))
+    label.pack(pady=20)
+    frame = tk.Frame(root)
+    scrollbar = tk.Scrollbar(frame)
+    scrollbar.pack(side="right", fill="y")
+    frame.pack(fill="both", expand=False, padx=10, pady=10)
+    text = tk.Text(
+        frame,
+        wrap="word",
+        yscrollcommand=scrollbar.set,
+        width = width,
+        height = height,
+        bg=root["bg"],
+        borderwidth=0,
+    )
+    text.insert("end", message)
+    text.config(state="disabled")
+    text.pack(side="left", fill="x", expand=True)
+    text.configure(padx=0, pady=0)  # Removes internal padding
+    text.tag_configure("all", spacing1=0, spacing3=0)  # Removes spacing before/after lines
+    text.tag_add("all", "1.0", "end")
     back_btn = tk.Button(root, text="Back to Home", command=go_to_home)
     back_btn.pack(pady=20)
+    scrollbar.config(command=text.yview)

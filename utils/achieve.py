@@ -60,6 +60,9 @@ def load_achieve():
                                 utils.state.achievements[3] = 1
             #completed (4 - 7)
             if ind == 1:
+                print("game completed")
+                print(int(i[0]))
+                print(int(i[0]) >= 1)
                 utils.state.num_completed = int(i[0])
                 if(int(i[0]) >= 1):
                     utils.state.achievements[4] = 1
@@ -146,6 +149,7 @@ def load_achieve():
             #incognito achievement
             if ind == 16:
                 utils.state.achievements[36] = int(i[0])
+            ind += 1   
         print("loaded achievments!")
 
 def check_achieve_play(frame):
@@ -168,6 +172,7 @@ def check_achieve_play(frame):
 def check_achieve_complete(frame):
     print("completed")
     print(utils.state.num_completed)
+    print(utils.state.achievements)
     if(utils.state.num_completed >= 1 and utils.state.achievements[4] == 0):
         utils.state.achievements[4] = 1
         overlay_notification(frame, "First game! achievement achieved! Completed 1 game")
@@ -246,7 +251,7 @@ def check_achieve_pick(frame):
 
 def check_achieve_cons(frame):
     utils.state.cur_no_choose += 1
-    if(utils.state.cur_no_choose > max_no_choose):
+    if(utils.state.cur_no_choose > utils.state.max_no_choose):
         utils.state.max_no_choose = utils.state.cur_no_choose
         if(utils.state.max_no_choose >= 1 and utils.state.achievements[24] == 0):
             utils.state.achievements[24] = 1
