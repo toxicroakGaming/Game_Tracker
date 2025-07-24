@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import shutil
 import re
 from utils.Date import current_time
+from utils.achieve import check_achieve_write
 
 #this file contains utility functions taht can be used in other files
 app_frame = None
@@ -218,8 +219,8 @@ def edit_text_file(root, file_path, go_to_journal, on_back=True):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         messagebox.showinfo("Saved", "Changes saved successfully!")
-        check_achieve_write(app_frame)
         go_to_journal()
+        check_achieve_write(app_frame)
     save_button = tk.Button(frame, text="Save", command=lambda:(save_changes()))
     save_button.pack(side="left", padx=10, pady=10)
 

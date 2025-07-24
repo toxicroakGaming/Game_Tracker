@@ -9,7 +9,7 @@ import csv
 import sys, os
 from utils.state import *
 from utils.util import *
-from utils.achieve import *
+from utils.achieve import load_achieve
 #this is important for when we update achievements
 global app_frame
 
@@ -51,6 +51,8 @@ def show_image_screen():
 root = tk.Tk()
 root.title("Game Tracker")
 root.geometry("1000x800")
+global current_bg_path
+current_bg_path = get_bg_image()
 img_path = get_resource_path(current_bg_path)
 # Load path saved previously
 bg_path = get_persistent_bg_image()

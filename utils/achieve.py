@@ -29,7 +29,7 @@ loaded into a list and only be updated when it needs to be
 #this function is kinda long, but the idea is that we want to load the variables from the CSV
 #we could make the CSV longer, but I chose to make it shorter since values can be inferred
 def load_achieve():
-    csv_file = get_csv_path("achieve.csv")
+    csv_file = utils.util.get_csv_path("achieve.csv")
     with open(csv_file, 'r') as f:
         reader = csv.reader(f)
         '''achieve.csv stores 11 things:
@@ -61,8 +61,6 @@ def load_achieve():
             #completed (4 - 7)
             if ind == 1:
                 print("game completed")
-                print(int(i[0]))
-                print(int(i[0]) >= 1)
                 utils.state.num_completed = int(i[0])
                 if(int(i[0]) >= 1):
                     utils.state.achievements[4] = 1
@@ -191,6 +189,7 @@ def check_achieve_complete(frame):
 
 #this updates when the number of descriptions written changes
 def check_achieve_write(frame):
+    print("this was called")
     utils.state.num_written += 1
     if(utils.state.num_written >= 1 and utils.state.achievements[8] == 0):
         utils.state.achievements[8] = 1
@@ -321,7 +320,7 @@ def check_achieve_image(frame):
 
 #writes the csv file. called quite a few times, but we need to ensure persistence
 def write_achieve():
-    csv_path = get_csv_path("achieve.csv")
+    csv_path = utils.util.get_csv_path("achieve.csv")
     with open(csv_path, 'w', newline = '') as f:
         writer = csv.writer(f)
         writer.writerow([utils.state.num_played])
