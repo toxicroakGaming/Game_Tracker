@@ -49,7 +49,7 @@ def load_achieve():
         for i in f:
             #played (0 - 3)
             if ind == 0:
-                num_played = int(i[0])
+                utils.state.num_played = int(i[0])
                 if(int(i[0]) >= 1):
                     utils.state.achievements[0] = 1
                     if(int(i[0]) >= 10):
@@ -152,6 +152,8 @@ def load_achieve():
             ind += 1   
         print("loaded achievments!")
 
+#these functions will be chunky, but the idea is that they will update achievements and the csv as needed
+#this function updates if the number of times we have chosen a game as "in progress" changes
 def check_achieve_play(frame):
     utils.state.num_played += 1
     if(utils.state.num_played >= 1 and utils.state.achievements[0] == 0):
@@ -168,7 +170,7 @@ def check_achieve_play(frame):
         overlay_notification(frame, "Professional achievement achieved! Played 100 games")
     write_achieve()
     
-
+#this updates when the number of games completed changes
 def check_achieve_complete(frame):
     print("completed")
     print(utils.state.num_completed)
@@ -187,6 +189,7 @@ def check_achieve_complete(frame):
         overlay_notification(frame, "Completionist ++ achievement achieved! Completed 100 games")
     write_achieve()
 
+#this updates when the number of descriptions written changes
 def check_achieve_write(frame):
     utils.state.num_written += 1
     if(utils.state.num_written >= 1 and utils.state.achievements[8] == 0):
@@ -206,6 +209,7 @@ def check_achieve_write(frame):
         overlay_notification(frame, "Documentarian achievement achieved! Wrote 100 game entries")
     write_achieve()
 
+#updates when the number of times the wheel has been spun changes
 def check_achieve_spin(frame):
     utils.state.num_spin += 1
     if(utils.state.num_spin >= 1 and utils.state.achievements[13] == 0):
@@ -225,6 +229,7 @@ def check_achieve_spin(frame):
         overlay_notification(frame, "Variety challenge achievement achieved! Spin the wheel 1000 times")
     write_achieve()
 
+#updates when you spin the wheel
 def check_achieve_pick(frame):
     utils.state.cur_no_game += 1
     if(utils.state.cur_no_game > utils.state.max_no_game):
@@ -249,6 +254,7 @@ def check_achieve_pick(frame):
             overlay_notification(frame, "Unlucky? achievement achieved! Spin 100 times without choosing a game")
         write_achieve()
 
+#updates every time a new game is chosen
 def check_achieve_cons(frame):
     utils.state.cur_no_choose += 1
     if(utils.state.cur_no_choose > utils.state.max_no_choose):
@@ -267,6 +273,7 @@ def check_achieve_cons(frame):
             overlay_notification(frame, "A fun challenge achieved! Complete 50 games without choosing another")
         write_achieve()
 
+#updates when a game is completed
 def check_achieve_time(name, frame):
     csv_path = get_csv_path("games.csv")
     with open(csv_path, 'r') as f:
@@ -304,7 +311,7 @@ def check_achieve_time(name, frame):
 def check_achieve_day():
     return None
 
-
+#updates once when a game is added with no image
 def check_achieve_image(frame):
     if(utils.state.achievements[36] == 0):
         print("incognito get")
@@ -312,6 +319,7 @@ def check_achieve_image(frame):
         overlay_notification(frame, "incognito achievement achieved! Add a game with no image")
         write_achieve()
 
+#writes the csv file. called quite a few times, but we need to ensure persistence
 def write_achieve():
     csv_path = get_csv_path("achieve.csv")
     with open(csv_path, 'w', newline = '') as f:
@@ -335,6 +343,7 @@ def write_achieve():
         writer.writerow([utils.state.achievements[36]])
         print("wrote to CSV file achievements")
 
+#for displaying the notification that an achievement has been gotten happens
 def overlay_notification(frame, message="Achievement!", duration=5000):
     label = tk.Label(frame, text=message, bg="#222", fg="white", font=("Arial", 11, "bold"))
     label.place(relx=0.5, rely=0.05, anchor="n")
@@ -342,6 +351,7 @@ def overlay_notification(frame, message="Achievement!", duration=5000):
     def fade_out():
         label.destroy()
 
+#chunky, but essentially, just loads the text when the screen is loaded
 def load_achieve_screen(root, go_to_home):
     back_btn = tk.Button(root, text="Back", command=go_to_home)
     
@@ -387,6 +397,7 @@ def load_achieve_screen(root, go_to_home):
     achieve_label.pack()
     back_btn.pack()
 
+#helper funciton to laod text with colors
 def ach_label(parent, text_parts):
     size_of_text = 39
     # text_parts = [("Normal ", "black"), ("Red", "red"), (" again", "black")]

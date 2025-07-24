@@ -10,7 +10,10 @@ import sys, os
 from utils.state import *
 from utils.util import *
 from utils.achieve import *
+#this is important for when we update achievements
 global app_frame
+
+#these are executed when we need to load a new screen
 def show_achieve_screen():
     clear_screen(root)
     load_achieve_screen(root, show_home_screen)
@@ -54,6 +57,7 @@ bg_path = get_persistent_bg_image()
 # Show it
 background_label, current_bg_path = set_background(root, bg_path, background_data)
 print("[DEBUG] background_data id:", id(background_data))
+#if the files arent there, create them with default values
 ensure_csv_exists("games.csv")
 if (ensure_csv_exists("curPlay.csv")):
     data = default_game
