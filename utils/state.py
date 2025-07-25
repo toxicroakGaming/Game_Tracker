@@ -22,6 +22,9 @@ change currently playing game X times in a day
 add game with no image
 1
 '''
+tags = []
+#we will make a dict of game -> list of tags
+game_tags = {}
 achiement_num = 37
 achievements = [0] * achiement_num
 num_played = 0

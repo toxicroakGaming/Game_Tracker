@@ -10,6 +10,7 @@ import sys, os
 from utils.state import *
 from utils.util import *
 from utils.achieve import load_achieve
+from utils.tag import *
 #this is important for when we update achievements
 global app_frame
 
@@ -69,6 +70,10 @@ if (ensure_csv_exists("curPlay.csv")):
         csv_writer.writerow(data)
 #for importing from pre 1.1.1, function is in util.py
 ensure_csv_exists("achieve.csv")
+ensure_csv_exists("tags.csv")
+#for connecting games to the tags
+#load tags
+load_tags()
 check_update()
 #load from the csv file into our instance
 load_achieve()

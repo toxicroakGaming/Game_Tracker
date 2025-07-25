@@ -6,6 +6,7 @@ from utils.util import *
 import utils.Date
 from utils.achieve import *
 import utils.state
+from utils.tag import *
 #GAMES.CSV HEADER
 # ["title", "platform", "image", "desc", "added", "start", "last", completed]
 #The main work of the "collections" screen
@@ -29,12 +30,18 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     most_btn = tk.Button(root, text="Sort By Progress (most - least)", command=lambda:(clear_screen(root),
                             games_holder.update({"games": sort_games(3), "sort" : 3}),
                             load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
+    add_tag_btn = tk.Button(root, text="Add New Tag", command=lambda:(clear_screen(root), add_tag_list(root, go_to_journal) 
+                            ))
+    rem_tag_btn = tk.Button(root, text="Remove Tag", command=lambda:(clear_screen(root), rem_tag_list(root, go_to_journal) 
+                            ))
     label.pack(pady=20)
     add_btn.pack(pady=20)
     az_btn.pack(pady=20)
     za_btn.pack(pady=20)
     least_btn.pack(pady=20)
     most_btn.pack(pady=20)
+    add_tag_btn.pack(pady=20)
+    rem_tag_btn.pack(pady=20)
     back_btn.pack(pady=20)
 
 def get_game_index(event):
@@ -255,6 +262,11 @@ def add_to_list(name, progress, image):
     with open(csv_path, 'a', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
+    tag_path = get_csv_path("tag_connect.csv")
+    with open(tag_path, 'a', newline = '') as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow("N/A")
+        utils.state.game_tags[name] = ["N/A"]
 
 #confirm with the user that they want to remove the game
 def on_remove(game):
@@ -496,7 +508,23 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         prog_btn = tk.Button(root, text="Change Progress", command=lambda t=name: change_prog_game(t, root, ind, go_to_journal))
         desc_label = tk.Label(root, text = "Description:")
         browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
+        add_btn = tk.Button(root, text="Add Tags", command=lambda:(clear_screen(root), add_tag_game(root, cur_game.get(), go_to_journal)))
+        rem_btn = tk.Button(root, text="Remove Tags", command=lambda:(clear_screen(root), remove_tag_game(root, cur_game.get(), go_to_journal)))
+        file = get_csv_path("tag_connect.csv")
+        tag_label = tk.Label(root, text = "Tags:")
+        tags = ""
+        t = get_csv_path("games.csv")
+        with open(file, 'r') as f:
+            with open(t, 'r') as h:
+                read_tag = csv.reader(f)
+                read_game = csv.reader(h)
+                for i in read_game:
+                    cur = next(read_tag)
+                    if(i[0] == name):
+                        for tag in cur[0]:
+                            tags = tags + tag + " "
         desc_text_label = tk.Label(root)
+        tags_label = tk.Label(root, text = tags)
         if(name != "N/A"):
             desc_path = os.path.join(get_user_data_dir(), "desc", f"{sanitize_filename(name)}.txt")
             desc_btn = tk.Button(root, text="Edit Description", command=lambda:(edit_text_file(root,desc_path, 
@@ -510,11 +538,15 @@ def load_collection(root, go_to_journal, sort, game_list = None):
             desc_label.pack(pady = 10)
             desc_text_label.pack(pady = 10)
             desc_btn.pack(pady = 10)
+            add_btn.pack(pady = 10)
+            rem_btn.pack(pady = 10)
             browse_btn.pack(pady = 10)
             prog_btn.pack(pady = 10)
         if(name != "N/A"):    
             change_btn.pack(pady=10)
             remove_btn.pack(pady=10)
+        tag_label.pack()
+        tags_label.pack()
         back_btn.pack(side="left", padx=20)
 
         def on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link):
