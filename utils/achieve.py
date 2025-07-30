@@ -6,6 +6,7 @@ import tkinter.font as tkfont
 from utils.util import *
 from utils.Date import *
 import utils.state
+from datetime import datetime
 '''
 There will be a csv file once again for tracking achievment progress.
 These are all the achievements that are available:
@@ -394,9 +395,17 @@ def load_achieve_screen(root, go_to_home):
     ("\nIncognito: Add a game without an image: ", "black"), ("COMPLETE" if utils.state.achievements[36] else "NOT COMPLETE", "green" if utils.state.achievements[36] else "red")
     ])
     achieve_label.pack()
+    csv_path = utils.util.get_csv_path("streak.csv")
+    streak_label = tk.Label(root, text="!", font=("Arial", 16))
+    with open(csv_path, 'r') as f:
+        reader = csv.reader(f)
+        cur = next(reader)
+        streak_label = tk.Label(text="Current Daily Streak: " + cur[1] + "\n" +
+            "Max streak: " + cur[2], font=("Arial", 16))
+    streak_label.pack(pady=20)
     back_btn.pack()
 
-#helper funciton to laod text with colors
+#helper funciton to load text with colors
 def ach_label(parent, text_parts):
     size_of_text = 39
     # text_parts = [("Normal ", "black"), ("Red", "red"), (" again", "black")]
@@ -416,3 +425,34 @@ def ach_label(parent, text_parts):
     widget.configure(state='disabled')  # Make it uneditable
     widget.pack()
     return widget
+
+def get_streak(root):
+    streak_csv = utils.util.get_csv_path("streak.csv")
+    up_day = False
+    broke = False
+    cur = 0
+    max_num = 0
+    time = ""
+    with open(streak_csv, 'r') as f:
+        reader = csv.reader(f)
+        i = next(reader)
+        time = i[0]
+        dt_obj = datetime.strptime(i[0], "%Y-%m-%d %H:%M:%S.%f")
+        cur = int(i[1])
+        max_num = int(i[2])
+        if(time_diff(dt_obj).days == 1):
+            print("next day!")
+            overlay_notification(root, message = "🔥 Daily streak is now " + str(int(i[1]) + 1) + " days! 🔥")
+            up_day = True
+        elif(time_diff(dt_obj).days > 1):
+            overlay_notification(root, message = "🥶 Daily streak broken 🥶")
+            broke = True
+            print("streak broken")
+    with open(streak_csv, 'w') as f:
+        writer = csv.writer(f)
+        if(up_day):
+            writer.writerow([current_time(), cur + 1, max(cur + 1, max_num)])
+        elif(broke):
+            writer.writerow([current_time(), 0, max_num])
+        else:
+            writer.writerow([time, cur, max_num])

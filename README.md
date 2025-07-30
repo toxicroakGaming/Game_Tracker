@@ -21,12 +21,10 @@
 - Tags to help stay organized and sort
 - search and filter functions
 - Favorites function
+- Daily streak function
 
 **WHATS NEW**
-- Added tags with sorting
-- Added a favorites feature
-- Added search feature
-- The wheel of choices now shows images of games with the text
+- Daily Streak system. see a reward for opening the app daily
 
 **BUGFIXES**
 

@@ -381,3 +381,11 @@ def check_update():
                 writer = csv.writer(g)
                 for i in f:
                     writer.writerow(["False"])
+    #create the streak csv. The bulk of this code will be in achieve.csv
+    #streak will show both on the home screen and in achievments
+    if(ensure_csv_exists("streak.csv")):
+        streak_csv = get_csv_path("streak.csv")
+        with open(streak_csv, 'w', newline = '') as f:
+            writer = csv.writer(f)
+            #day, current, longest
+            writer.writerow([current_time(), 0, 0]) 

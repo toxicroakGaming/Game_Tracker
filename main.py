@@ -9,7 +9,7 @@ import csv
 import sys, os
 from utils.state import *
 from utils.util import *
-from utils.achieve import load_achieve, load_achieve_screen
+from utils.achieve import load_achieve, load_achieve_screen, get_streak
 from utils.tag import *
 #this is important for when we update achievements
 global app_frame

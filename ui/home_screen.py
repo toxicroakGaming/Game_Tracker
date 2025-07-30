@@ -3,6 +3,7 @@ from PIL import ImageTk, Image
 import csv
 import sys, os
 from utils.util import *
+from utils.achieve import get_streak
 
 def get_root_path():
     if hasattr(sys, "_MEIPASS"):
@@ -16,6 +17,7 @@ def get_root_path():
 def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin, go_to_achieve):
     label = tk.Label(root, text="Welcome to Game Tracker!", font=("Arial", 16))
     label.pack(pady=20)
+    get_streak(root)
     #read curPlay.csv to get the current game. It is automatically made to "N/A,N/A"
     csv_path = get_csv_path("curPlay.csv")
     play = "Currently, you are playing:\n"
@@ -44,6 +46,13 @@ def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin,
     ch_btn = tk.Button(root, text="Wheel of Choices", command=go_to_spin)
     bg_btn = tk.Button(root, text="Change Background", command=go_to_image)
     ach_btn = tk.Button(root, text="Achievements", command=go_to_achieve)
+    csv_path = get_csv_path("streak.csv")
+    streak_label = tk.Label(root, text="!", font=("Arial", 16))
+    with open(csv_path, 'r') as f:
+        reader = csv.reader(f)
+        cur = next(reader)
+        streak_label = tk.Label(text="Current Daily Streak: " + cur[1] + "\n" +
+            "Max streak: " + cur[2], font=("Arial", 16))
     play_label.pack()
     btn.pack()
     col_btn.pack()
@@ -51,4 +60,5 @@ def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin,
     ch_btn.pack(pady=20)
     bg_btn.pack()
     label.pack(pady=20)
+    streak_label.pack(pady=20)
     label2.pack()

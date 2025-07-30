@@ -41,11 +41,13 @@ def do_screen(root, go_to_home, width = 300, height = 20):
     "\n1.2.0\n" + 
     " - Added tag sorting\n" + 
     " - Added Favorites feature\n" + 
-    " - Images now appear for the games in the wheel of choices" + 
-    " - Search and filter features added")
+    " - Images now appear for the games in the wheel of choices\n" + 
+    " - Search and filter features added\n" + 
+    "\n1.2.1\n" + 
+    " - added daily streak system")
     
     label = tk.Label(root, text="Updates\n" + 
-    "CURRENT VERSION: 1.2.0", font=("Arial", 16))
+    "CURRENT VERSION: 1.2.1", font=("Arial", 16))
     label.pack(pady=20)
     frame = tk.Frame(root)
     scrollbar = tk.Scrollbar(frame)
