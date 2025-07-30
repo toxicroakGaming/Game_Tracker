@@ -32,6 +32,7 @@ def load_tags():
         for i in tag_reader:
             utils.state.tags.append(i[0])
 
+#adds tags PER GAME. The naming might get confusing here
 def add_tag_game(root, name, go_to_journal):
     container = tk.Frame(root)
     container.pack(side = "left", fill="both", expand=True)
@@ -58,6 +59,7 @@ def add_tag_game(root, name, go_to_journal):
     scroll_frame = tk.Frame(canvas, background="#f0f0f0")
     canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
 
+#remove tags PER GAME
 def remove_tag_game(root, name, go_to_journal):
     container = tk.Frame(root)
     container.pack(side = "left", fill="both", expand=True)
@@ -90,7 +92,7 @@ def remove_tag_game(root, name, go_to_journal):
     scroll_frame = tk.Frame(canvas, background="#f0f0f0")
     canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
 
-
+#this is to make the messagebox appear and continue action if needed
 def tag_change(tag, name, t):
     if(tag == None or tag == ""):
         result = messagebox.askyesno("Invalid", "Can't add tag due to N/A state")
@@ -106,6 +108,7 @@ def tag_change(tag, name, t):
         print("User canceled deletion.")
         return False
 
+#remove tag from a game
 def tag_rem(tag, name, t):
     if(tag == None or tag == "N/A"):
         result = messagebox.askyesno("Invalid", "Can't remove tag due to N/A state")
@@ -121,6 +124,7 @@ def tag_rem(tag, name, t):
         print("User canceled deletion.")
         return False
 
+#write the new tag_connect file without the tags
 def write_rem(tag, name):
     csv_file = utils.util.get_csv_path("tag_connect.csv")
     games = utils.util.get_csv_path("games.csv")
@@ -147,7 +151,7 @@ def write_rem(tag, name):
                 writer.writerows(tags)
                 load_tags()
 
-
+#write the list of tags in the program
 def write_list(tag, name):
     csv_file = utils.util.get_csv_path("tag_connect.csv")
     games = utils.util.get_csv_path("games.csv")
@@ -176,6 +180,7 @@ def write_list(tag, name):
                 writer.writerows(tags)
                 load_tags()
 
+#add a tag to the overall program list
 def add_tag_list(root, go_to_journal):
     container = tk.Frame(root)
     container.pack(side = "left", fill="both", expand=True)
@@ -191,6 +196,7 @@ def add_tag_list(root, go_to_journal):
     scroll_frame = tk.Frame(canvas, background="#f0f0f0")
     canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
 
+#remove a tag from the overall program list
 def rem_tag_list(root, go_to_journal):
     container = tk.Frame(root)
     container.pack(side = "left", fill="both", expand=True)
@@ -207,7 +213,7 @@ def rem_tag_list(root, go_to_journal):
     for text in values:
         Radiobutton(canvas, text = text, variable = rem_tag, value = text, indicator = 0, 
         background = "light blue").pack(fill='x', ipady=5)
-    rem_btn = tk.Button(canvas, text="remove selected", command=lambda:(tag_rem(rem_tag.get(), None, 0)))
+    rem_btn = tk.Button(canvas, text="remove selected", command=lambda:(tag_rem(rem_tag.get(), None, 0), go_to_journal))
     back_btn = tk.Button(canvas, text="Back to Collection", command=go_to_journal)
     rem_btn.pack(pady=10)
     back_btn.pack(pady=10)
@@ -217,6 +223,8 @@ def rem_tag_list(root, go_to_journal):
     scroll_frame = tk.Frame(canvas, background="#f0f0f0")
     canvas_window = canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
 
+#write with the tag removed from the overall program list.
+#this includes any games in tag_connect that had the tag
 def write_rem_list(tag):
     file = utils.util.get_csv_path("tags.csv")
     tags = []

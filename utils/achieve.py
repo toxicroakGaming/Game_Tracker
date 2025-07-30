@@ -274,7 +274,7 @@ def check_achieve_cons(frame):
 
 #updates when a game is completed
 def check_achieve_time(name, frame):
-    csv_path = get_csv_path("games.csv")
+    csv_path = utils.util.get_csv_path("games.csv")
     with open(csv_path, 'r') as f:
         reader = csv.reader(f)
         for i in reader:

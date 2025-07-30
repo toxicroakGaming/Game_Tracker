@@ -371,3 +371,13 @@ def check_update():
             writer = csv.writer(new_file)
             for i in temp:
                 writer.writerow(i)
+    print("exist?")
+    if(ensure_csv_exists("favorites.csv")):
+        games_csv = get_csv_path("games.csv")
+        fav_csv = get_csv_path("favorites.csv")
+        with open(games_csv, 'r') as f:
+            with open(fav_csv, 'w', newline = '') as g:
+                reader = csv.reader(f)
+                writer = csv.writer(g)
+                for i in f:
+                    writer.writerow(["False"])

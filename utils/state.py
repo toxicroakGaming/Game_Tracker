@@ -37,3 +37,5 @@ max_no_game = 0
 #have we spun the wheel x times without picking a game?
 cur_no_choose = 0
 max_no_choose = 0
+
+sel_tags = []

@@ -8,6 +8,7 @@ import random
 from utils.achieve import *
 import utils.state
 
+image_refs = []
 def load_spin_screen(root, go_to_home):
     title_label = tk.Label(root, text = "Choose a new game!", font = ("Arial", 16))
     text_label = tk.Label(root, text = "Click the button below to start spinning!", font = ("Arial", 16))
@@ -21,7 +22,7 @@ def load_spin_screen(root, go_to_home):
     back_btn.pack(pady=20)
 
 def choose_game(game_label, ind = 200):
-    global app_frame
+    global app_frame, image_refs
     choice = ""
     cur_play_path = get_csv_path("games.csv")
     with open(cur_play_path, 'r', newline='') as f:
@@ -35,13 +36,22 @@ def choose_game(game_label, ind = 200):
     # Pick a random game each time
     g = random.choice(reader)
     choice = g[0]
-    game_label.config(text=f"{choice}")
+    img = get_resource_path(g[2])
+    thumb_size = (220, 220)
+    new_img = Image.new("RGB", thumb_size, color="gray")
+    new_img.thumbnail(thumb_size)
+    new_img = Image.open(img)
+    new_img.thumbnail(thumb_size)
+    photo = ImageTk.PhotoImage(new_img)
+    image_refs.append(photo)
+    game_label.config(text=f"{choice}", image = photo, compound=tk.TOP)
+
     # Update the label
 
     if ind > 0:
         game_label.after(10, lambda: choose_game(game_label, ind - 1))
-    elif g[1] == "Completed":
-        game_label.after(10, lambda: choose_game(game_label, ind))
+    #elif g[1] == "Completed":
+        #game_label.after(10, lambda: choose_game(game_label, ind))
     else:
         print(f"[INFO] Final choice: {choice}")
         check_achieve_spin(app_frame)
@@ -67,7 +77,7 @@ def change_to_play(game):
             if(i[0] == game):
                 #for cur_play
                 change = [i[0], "In Progress", i[2]]
-                cur_games.append([i[0], "In Progress", i[2], i[3]])
+                cur_games.append([i[0], "In Progress", i[2], i[3], i[4], i[5], i[6], i[7]])
             elif(i[1] == "In Progress"):
                 print(i)
                 print(i[1] + "   prog")

@@ -1,4 +1,4 @@
-# Game_Tracker 1.1.4
+# Game_Tracker 1.2.0
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
@@ -18,10 +18,15 @@
 - Change progress/status of games after they are added to the list to ensure proper progress tracking
 - Each game has its own page in the descriptions screen where you can edit the description
 - When you choose a new game, you can pick or have the wheel decide for you
-- Tags to help stay organized
+- Tags to help stay organized and sort
+- search and filter functions
+- Favorites function
 
 **WHATS NEW**
-- Added tags! sorting will come soon
+- Added tags with sorting
+- Added a favorites feature
+- Added search feature
+- The wheel of choices now shows images of games with the text
 
 **BUGFIXES**
 
