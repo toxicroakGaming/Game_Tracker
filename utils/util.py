@@ -7,6 +7,7 @@ import shutil
 import re
 from utils.Date import current_time
 from utils.achieve import check_achieve_write
+import utils.state
 
 #this file contains utility functions taht can be used in other files
 app_frame = None
@@ -26,17 +27,18 @@ def get_resource_path(relative_path):
 # ["title", "platform", "image", "desc", "added", "start", "last", "completed"]
 # added is when it was added, start is when it was started, last is when it was last played
 # completed is when it was completed
-default_game = [
-    "N/A",
-    "N/A",
-    r"ui\media\games\no_image.jpg",
-    r"ui\desc\def_desc.txt",
-    r"ui\desc\def_desc.txt",
-    current_time(),
-    "N/A",
-    "N/A",
-    "NA"
-]
+#i["title"], i["status"], i["image"], i["desc"], i["added"], i["start"],
+                                            #i["last"], i["completed"])
+default_game = {"title":"N/A",
+    "status":"N/A",
+    "image": r"ui\media\games\no_image.jpg",
+    "desc":r"ui\desc\def_desc.txt",
+    "added":current_time(),
+    "last":"N/A",
+    "completed":"N/A",
+    "start":"NA"
+    }
+
 background_data = {"label": None, "img": None}
 games_holder = {"games": None, "sort": None}
 
@@ -389,3 +391,63 @@ def check_update():
             writer = csv.writer(f)
             #day, current, longest
             writer.writerow([current_time(), 0, 0]) 
+
+#load from the csv into local memory
+def load_games():
+    utils.state.game_store = []
+    games_csv = get_csv_path("games.csv")
+    fav_csv = get_csv_path("favorites.csv")
+    tag_conn_csv = get_csv_path("tag_connect.csv")
+    with open(games_csv, 'r') as game:
+        with open(fav_csv, 'r') as fav:
+                with open(tag_conn_csv, 'r') as tag_conn:
+                    tag_reader = csv.reader(tag_conn)
+                    game_reader = csv.reader(game)
+                    fav_reader = csv.reader(fav)
+                    next(game_reader)
+                    #title,platform,image,desc,added,start,last,completed
+                    for i in game_reader:
+                        favo = next(fav_reader)
+                        tags = next(tag_reader)
+                        #print(tags)
+                        #print(tags[0])
+                        utils.state.game_store.append({"title":i[0], "status":i[1], "image":i[2], "desc":i[3], "added":i[4], "start":i[5],
+                                                        "last":i[6], "completed":i[7], "favorite":favo, "tags": tags})
+    print("loaded")
+
+
+
+#save to CSVs
+def save_games():
+    games_csv = get_csv_path("games.csv")
+    fav_csv = get_csv_path("favorites.csv")
+    tag_conn_csv = get_csv_path("tag_connect.csv")
+    with open(games_csv, 'w', newline = '') as game:
+        game_writer = csv.writer(game)
+        #title,platform,image,desc,added,start,last,completed
+        for i in utils.state.game_store:
+            game_writer.writerow([i["title"], i["status"], i["image"], i["desc"], i["added"], i["start"],
+                                            i["last"], i["completed"]])
+    with open(fav_csv, 'w', newline = '') as fav:
+        fav_writer = csv.writer(fav)
+        for i in utils.state.game_store:
+            fav_writer.writerow(i["favorite"])
+    with open(tag_conn_csv, 'w', newline = '') as tag_conn:
+        tag_writer = csv.writer(tag_conn)
+        for i in utils.state.game_store:
+            tag_writer.writerow(i["tags"])
+
+#getting cached images (so that we dont have to create new photoImages every time)
+def get_cached_image(path, thumb_size):
+    if path in utils.state.image_cache:
+        return utils.state.image_cache[path]
+
+    if os.path.exists(path):
+        img = Image.open(path)
+    else:
+        img = Image.new("RGB", thumb_size, color="gray")
+
+    img.thumbnail(thumb_size)
+    photo = ImageTk.PhotoImage(img)
+    utils.state.image_cache[path] = photo
+    return photo

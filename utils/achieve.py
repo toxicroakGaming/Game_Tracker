@@ -174,19 +174,28 @@ def check_achieve_complete(frame):
     print("completed")
     print(utils.state.num_completed)
     print(utils.state.achievements)
+    print(utils.state.achievements)
+    print("achieve")
     if(utils.state.num_completed >= 1 and utils.state.achievements[4] == 0):
         utils.state.achievements[4] = 1
+        write_achieve()
         overlay_notification(frame, "First game! achievement achieved! Completed 1 game")
+        return
     if(utils.state.num_completed >= 10 and utils.state.achievements[5] == 0):
         utils.state.achievements[5] = 1
+        write_achieve()
         overlay_notification(frame, "Seasoned gamer achievement achieved! Completed 10 games")
+        return
     if(utils.state.num_completed >= 50 and utils.state.achievements[6] == 0):
         utils.state.achievements[6] = 1
+        write_achieve()
         overlay_notification(frame, "Completionist achievement achieved! Completed 50 games")
+        return
     if(utils.state.num_completed >= 100 and utils.state.achievements[7] == 0):
         utils.state.achievements[7] = 1
+        write_achieve()
         overlay_notification(frame, "Completionist ++ achievement achieved! Completed 100 games")
-    write_achieve()
+        return
 
 #this updates when the number of descriptions written changes
 def check_achieve_write(frame):

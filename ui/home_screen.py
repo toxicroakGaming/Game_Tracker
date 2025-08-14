@@ -15,6 +15,8 @@ def get_root_path():
 
 
 def load_home_screen(root, go_to_update, go_to_journal, go_to_image, go_to_spin, go_to_achieve):
+    load_games()
+    
     label = tk.Label(root, text="Welcome to Game Tracker!", font=("Arial", 16))
     label.pack(pady=20)
     get_streak(root)

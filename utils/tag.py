@@ -70,15 +70,10 @@ def remove_tag_game(root, name, go_to_journal):
     games = utils.util.get_csv_path("games.csv")
     rem_tag = tk.StringVar()
     values = []
-    with open(csv_file, 'r') as f:
-        with open(games, 'r') as g:
-            tag_read = csv.reader(f)
-            game_read = csv.reader(g)
-            for i in game_read:
-                cur = next(tag_read)
-                if(name == i[0]):
-                    for t in cur:
-                        values.append(t)
+    for i in utils.state.game_store:
+        if(name == i["title"]):
+            for o in i["tags"]:
+                values.append(o)
     for text in values:
         Radiobutton(canvas, text = text, variable = rem_tag, value = text, indicator = 0, 
         background = "light blue").pack(fill='x', ipady=5)
@@ -99,8 +94,10 @@ def tag_change(tag, name, t):
         return False
     result = messagebox.askyesno("Confirm New Tag", "Are you sure you want to add tag " + tag + " ?")
     if result:
+        #by game
         if(t == 1):
             write_list(tag, name)
+        #whole program
         else:
             write_list_add(tag)
         return True
@@ -115,8 +112,10 @@ def tag_rem(tag, name, t):
         return False
     result = messagebox.askyesno("Confirm New Tag", "Are you sure you want to remove tag " + tag + " ?")
     if result:
+        #remove from specific game
         if(t == 1):
             write_rem(tag, name)
+        #ifw e are removing from the entire program
         else:
             write_rem_list(tag)
         return True
@@ -129,56 +128,27 @@ def write_rem(tag, name):
     csv_file = utils.util.get_csv_path("tag_connect.csv")
     games = utils.util.get_csv_path("games.csv")
     tags = []
-    with open(games, 'r') as f:
-        with open(csv_file, 'r') as h:
-            read_tag = csv.reader(h)
-            reader = csv.reader(f)
-            for i in reader:
-                temp = next(read_tag)
-                if(name != i[0]):
-                    tags.append(temp)
-                else:
-                    if(tag not in temp):
-                        tags.append(temp)
-                        print("tag does not exist!")
-                    else:
-                        temp.remove(tag)
-                        if(temp == []):
-                            temp.append("N/A")
-                        tags.append(temp)
-            with open(csv_file, 'w', newline = '') as g:
-                writer = csv.writer(g)
-                writer.writerows(tags)
-                load_tags()
+    temp = next((entry for entry in utils.state.game_store if entry["title"] == name), None)
+    if(tag in temp["tags"]):
+        temp["tags"].remove(tag)
+        if(temp["tags"] == []):
+            temp["tags"] = ["N/A"]
+    utils.util.save_games()
+    load_tags()
 
-#write the list of tags in the program
+#write the list of tags per game
 def write_list(tag, name):
     csv_file = utils.util.get_csv_path("tag_connect.csv")
     games = utils.util.get_csv_path("games.csv")
     tags = []
-    with open(csv_file, 'r', newline = '') as g:
-        with open(games, 'r') as f:
-            writer = csv.reader(g)
-            reader = csv.reader(f)
-            for i in reader:
-                temp = next(writer)
-                if(name != i[0]):
-                    tags.append(temp)
-                else:
-                    if(tag in temp):
-                        tags.append(temp)
-                        print("tag already exists!")
-                    else:
-                        if(temp == ["N/A"]):
-                            temp = [tag]
-                            tags.append(temp)
-                        else:   
-                            temp.append(tag)
-                            tags.append(temp)
-            with open(csv_file, 'w', newline = '') as new_file:
-                writer = csv.writer(new_file)
-                writer.writerows(tags)
-                load_tags()
+    temp = next((entry for entry in utils.state.game_store if entry["title"] == name), None)
+    if(not tag in temp["tags"]):
+        if(temp["tags"] == ['N/A']):
+            temp["tags"] = [tag]
+        else:
+            temp["tags"].append(tag)
+        utils.util.save_games()
+        load_tags()
 
 #add a tag to the overall program list
 def add_tag_list(root, go_to_journal):
@@ -237,18 +207,15 @@ def write_rem_list(tag):
         w = csv.writer(f)
         for i in tags:
             w.writerow(i)
-    file = utils.util.get_csv_path("tag_connect.csv")
     tags = []
-    with open(file, 'r', newline='') as g:
-        r = csv.reader(g)
-        for i in r:
-            if tag in i:
-                i = [x for x in i if x != tag]
-            tags.append(i)
-        with open(file, 'w', newline = '') as f:
-            w = csv.writer(f)
-            w.writerows(tags)
+    for i in utils.state.game_store:
+        for o in i["tags"]:
+            if tag in o:
+                i["tags"] = [x for x in i["tags"] if x != tag]
+            tags.append(i["tags"])
+    save_games()
 
+#add to whole program
 def write_list_add(tag):
     file = utils.util.get_csv_path("tags.csv")
     tags = []

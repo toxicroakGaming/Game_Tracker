@@ -22,10 +22,15 @@ change currently playing game X times in a day
 add game with no image
 1
 '''
+#for caching and easy loading
+game_frames = {}
+widget_image_map = {}
 tags = []
 #we will make a dict of game -> list of tags
 game_tags = {}
 achiement_num = 37
+#for getting cached images
+image_cache = {}
 achievements = [0] * achiement_num
 num_played = 0
 num_completed = 0
@@ -39,3 +44,6 @@ cur_no_choose = 0
 max_no_choose = 0
 
 sel_tags = []
+
+#store the games in a list for access later
+game_store = []

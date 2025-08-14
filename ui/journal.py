@@ -45,15 +45,13 @@ def load_journal_screen(root, go_to_home, go_to_add, go_to_journal):
     search_label.pack(pady=10)
     search_entry.pack(pady=10)
     search_btn.pack(pady=10)
-    add_btn.pack(pady=10)
-    az_btn.pack(pady=10)
-    za_btn.pack(pady=10)
-    least_btn.pack(pady=10)
-    most_btn.pack(pady=10)
-    fav_btn.pack(pady=10)
+    add_btn.pack(pady=5)
+    az_btn.pack(pady=5)
+    za_btn.pack(pady=5)
+    least_btn.pack(pady=5)
+    most_btn.pack(pady=5)
+    fav_btn.pack(pady=5)
     utils.state.sel_tags = load_tags(root)
-    print("check vars")
-    print(utils.state.sel_tags)
     sort_tag_btn = tk.Button(root, text="Sort by selected tags", command=lambda:(clear_screen(root),
                         games_holder.update({"games": sort_tags([tag for tag, var in utils.state.sel_tags.items() if var.get()], 0), "sort" : 4}),
                         load_journal_screen(root, go_to_home, go_to_add, go_to_journal)))
@@ -78,42 +76,24 @@ def remove_game(title_to_remove):
         print("remove?")
         print(title_to_remove)
         games = read_games("games.csv", 1)
-        print(games)
         cur_play = read_games("curPlay.csv", 0)
         fav_path = get_csv_path("favorites.csv")
         tag_path = get_csv_path("tag_connect.csv")
         favorites = []
         tags = []
         #removing entry from favorites and tag_connect
-        with open(fav_path, 'r') as f:
-            with open(tag_path, 'r') as g:
-                fav_reader = csv.reader(f)
-                tag_reader = csv.reader(g)
-                next(fav_reader)
-                next(tag_reader)
-                for i in games:
-                    fav = next(fav_reader)
-                    tag = next(tag_reader)
-                    if(i[0] != title_to_remove):
-                        favorites.append(fav)
-                        tags.append(tag)
+        temp = utils.state.game_store
+        for i in utils.state.game_store:
+            if(i["name"] == title_to_remove):
+                temp.remove(i)
+        utils.state.game_store = temp
         #write everything with the game removed
-        with open(fav_path, 'w', newline = '') as f:
-            writer = csv.writer(f)
-            writer.writerows(favorites)
-        with open(tag_path, 'w', newline = '') as f:
-            writer = csv.writer(f)
-            writer.writerows(tags)
-        updated_games = [g for g in games if g[0] != title_to_remove]
-        for g in games:
-            print(g[0] + " Game " + title_to_remove)
-        new = [default_game]
+        save_games()
         #if the game was currently being played, we need to change it to N/A
         path = get_csv_path("curPlay.csv")
         with open(path, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for i in csv_reader:
-                print("i[0] " + i[0] + " real? " + title_to_remove)
                 if(i[0] == title_to_remove and i[0] != "N/A"):
                     write_games(new, "curPlay.csv", 0)
         if len(updated_games) == len(games):
@@ -123,6 +103,7 @@ def remove_game(title_to_remove):
             print("Removed " + title_to_remove)
     else:
         print("cant remove nothing") 
+    utils.util.load_games()
 
 
 def read_games(game, header):
@@ -145,7 +126,6 @@ def write_games(games, CSV_FILE, head):
             #these are the columns we want to have in our games.csv.
             writer.writerow(["title", "platform", "image", "desc", "added", "start", "last", "completed"])  # write header back
         for i in games:
-            print("I is " + i[0] + " " + i[1])
             writer.writerow(i)
 
 
@@ -159,33 +139,25 @@ def change_play_game(name, progress, image):
     with open(csv_path, 'w', newline = '') as new_file:
         csv_writer = csv.writer(new_file)
         csv_writer.writerow(data)
-    csv_path = get_csv_path("games.csv")
     games = []
-    with open(csv_path, 'r', newline = '') as f:
-        csv_reader = csv.reader(f)
-        for i in csv_reader:
-            #Since we can't play two games at once in this, change the 
-            #current in progress game to being some progress
-            if(i[1] == "In Progress"):
-                i[6] = current_time()
-                i[1] = "Some progress not completed"
-            if(name == i[0]):
-                #update time intervals. this is for an achievement
-                if(i[1] == "Not Started"):
-                    i[6] = current_time()
-                    i[5] = current_time()
-                print("changing something")
-                i[1] = "In Progress"
-                check_achieve_play(app_frame)
-            print(i)
-            games.append(i)
+    for i in utils.state.game_store:
+        #Since we can't play two games at once in this, change the 
+        #current in progress game to being some progress
+        if(i["status"] == "In Progress"):
+            i["last"] = current_time()
+            i["status"] = "Some progress not completed"
+
+        if(name == i["title"]):
+            #update time intervals. this is for an achievement
+            if(i["status"] == "Not Started"):
+                i["last"] = current_time()
+                i["start"] = current_time()
+            print("changing something")
+            i["status"] = "In Progress"
+            check_achieve_play(app_frame)
+        games.append(i)
     #write the games to the csv
-    with open(csv_path, 'w', newline = '') as new_write:
-        csv_writer = csv.writer(new_write)
-        for i in games:
-            print("NEW")
-            print(i)
-            csv_writer.writerow(i)
+    save_games()
     print(data)
 
 def change_prog_game(name, root, ind, go_to_journal):
@@ -197,6 +169,8 @@ def change_prog_game(name, root, ind, go_to_journal):
         game_name = tk.Label(root, text = "Game changing: " + name)
         game_name.pack(pady = 20)
         progress_var = add_options(root)
+        print(name)
+        print("above me is the name")
         change_btn = tk.Button(root, text="Change Progress", command=lambda:(on_click(name, progress_var.get())))
         back_btn = tk.Button(root, text="Back to Home", command=go_to_journal)
         change_btn.pack(pady=20)
@@ -211,19 +185,20 @@ def change_prog_game(name, root, ind, go_to_journal):
                 with open(csv_path, 'r', newline = '') as new_file:
                     csv_reader = csv.reader(new_file)
                     cur = next(csv_reader)
-                    if(cur[0] == name):
-                        change_play_game(name, progress, cur[2])
+                    if(cur[0] != name):
+                        temp = next((entry for entry in utils.state.game_store if entry["title"] == name), None)
+                        n = temp["image"]
+                        change_play_game(name, progress, n)
                 csv_path = get_csv_path("games.csv")
                 #read the games into a temporary list so that we can write from it
                 temp = []
+                print(progress)
                 with open(csv_path, 'r', newline = '') as new_file:
                     csv_reader = csv.reader(new_file)
-                    print("temp")
+                    print("temp2")
                     for i in csv_reader:
                         temp.append(i)
-                        print(i)
                     print("contents of temp")
-                    print(temp)
                 #write temp to the csv
                 with open(csv_path, 'w', newline = '') as new_file:
                     index = 0
@@ -235,10 +210,9 @@ def change_prog_game(name, root, ind, go_to_journal):
                             if(name == i[0] and (progress == "Completed" or progress == "100%")):
                                 print("this is called to change progress!")
                                 check_achieve_cons(app_frame)
-                                change_play_game(default_game[0], default_game[1], default_game[2])
+                                change_play_game(default_game["title"], default_game["status"], default_game["image"])
                             else:
                                 cur_no_game = 0
-                            print(i)
                             data = [name, progress, i[2], i[3], i[4], i[5], current_time(), i[7]]
                             doub = True
                             csv_writer.writerow(data)
@@ -260,7 +234,7 @@ def change_prog_game(name, root, ind, go_to_journal):
                                     csv_writer.writerow(data)
                                 doub = False
                         else:
-                            print(i)
+                            #print(i)
                             csv_writer.writerow(temp[index])
                         index += 1
     else:
@@ -268,7 +242,7 @@ def change_prog_game(name, root, ind, go_to_journal):
 
 def load_add_screen(root, go_to_home):
     image_path = tk.StringVar()
-    image_path.set(default_game[2])
+    image_path.set(default_game["image"])
     label = tk.Label(root, text="Add a game", font=("Arial", 16))
     label2 = tk.Label(root, text="Select Progress", font=("Arial", 16))
     label3 = tk.Label(root, text="Type Game Name", font=("Arial", 16))
@@ -328,10 +302,11 @@ def add_to_list(name, progress, image):
     with open(fav_path, 'a', newline = '') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(["False"])
+    utils.util.load_games()
 
 #confirm with the user that they want to remove the game
 def on_remove(game):
-    if(game == default_game[0]):
+    if(game == default_game["title"]):
         messagebox.askyesno("Can't delete N/A", "Can't delete N/A")
         return
     result = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete " + game + " from the list?")
@@ -379,29 +354,22 @@ def prog_change(game, prog):
 3 progress (most-least)
 '''
 def sort_games(type):
-    print("sorting...")
-    print(type)
+    #print("sorting...")
+    #print(type)
     csv_path = get_csv_path("games.csv")
     sorted_list = []
     if(type == 5):
         print("sorting by favorite")
         fav = []
         not_fav = []
-        fav_path = get_csv_path("favorites.csv")
-        with open(fav_path, 'r') as g:
-            with open(csv_path, 'r') as f:
-                game_reader = csv.reader(f)
-                fav_reader = csv.reader(g)
-                next(game_reader)
-                next(fav_reader)
-                for i in game_reader:
-                    cur = next(fav_reader)
-                    if(cur[0] == "True"):
-                        fav.append(i)
-                        print("yes, added")
-                    else:
-                        not_fav.append(i)
-        print("adding favorites")
+        for i in utils.state.game_store:
+            cur = i["favorite"]
+            if(cur[0] == "True"):
+                fav.append(i)
+                print("yes, added")
+            else:
+                not_fav.append(i)
+        #print("adding favorites")
         for i in fav:
             sorted_list.append(i)
         for i in not_fav:
@@ -411,12 +379,12 @@ def sort_games(type):
         csv_reader = csv.reader(new_file)
         next(csv_reader)
         sorted_list = []
-        for i in csv_reader:
+        for i in utils.state.game_store:
             sorted_list.append(i)
         if(type == 0):
-            sorted_list = sorted(sorted_list, key=lambda x: x[0])
+            sorted_list = sorted(sorted_list, key=lambda x: x["title"])
         elif(type == 1):
-            sorted_list = sorted(sorted_list, key=lambda x: x[0], reverse = True)
+            sorted_list = sorted(sorted_list, key=lambda x: x["title"], reverse = True)
         elif(type == 2 or type == 3):
             #0 is not started
             #1 is in progress
@@ -424,15 +392,16 @@ def sort_games(type):
             #3 is 100%
             prog = [[], [], [], [], []]
             for i in sorted_list:
-                if(i[1] == "Not Started"):
+                st = i["status"]
+                if(st == "Not Started"):
                     prog[0].append(i)
-                if(i[1] == "Some progress not completed"):
+                if(st == "Some progress not completed"):
                     prog[1].append(i)
-                elif(i[1] == "In Progress"):
+                elif(st == "In Progress"):
                     prog[2].append(i)
-                elif(i[1] == "Completed"):
+                elif(st == "Completed"):
                     prog[3].append(i)
-                elif(i[1] == "100%"):
+                elif(st == "100%"):
                     prog[4].append(i)
             sorted_list = []
             if(type == 2):
@@ -460,18 +429,12 @@ def load_collection(root, go_to_journal, sort, game_list = None):
     if(game_list == None):
         game_list = []
         #Read the CSV file
-        csv_path = get_csv_path("games.csv")
-        with open(csv_path, 'r') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            next(csv_reader)
-            for line in csv_reader:
-                #print(line)
-                game_list.append(line)
-                if(line[1] == "Completed" or line[1] == "100%"):
-                    print("completed game here")
-                    utils.state.num_completed += 1
-                if(line[2] == r"ui\media\games\no_image.jpg"):
-                    no_image = True
+        for line in utils.state.game_store:
+            game_list.append(line)
+            if(line["status"] == "Completed" or line["status"] == "100%"):
+                utils.state.num_completed += 1
+            if(line["image"] == r"ui\media\games\no_image.jpg"):
+                no_image = True    
             if(game_list == []):
                 print(True)
                 game_list.append(default_game)
@@ -512,8 +475,8 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     scroll_frame.bind("<Configure>", on_frame_configure)
-    canvas.bind("<Configure>", resize_canvas)
-    canvas.bind_all("<MouseWheel>", _on_mousewheel)
+    canvas.bind("<Configure>", lambda e: lazy_load_images(canvas, thumb_size))
+    canvas.bind_all("<MouseWheel>", lambda e: lazy_load_images(canvas, thumb_size))
 
     def on_frame_configure(event):
         canvas.configure(scrollregion=canvas.bbox("all"))
@@ -524,52 +487,52 @@ def load_collection(root, go_to_journal, sort, game_list = None):
     cur_prog = tk.StringVar()
     cur_link = tk.StringVar()
     cur_desc = tk.StringVar()
-    cur_prog.set(default_game[0])
-    cur_game.set(default_game[1])
-    cur_link.set(default_game[2])
-    cur_desc.set(default_game[3])
+    cur_prog.set(default_game["status"])
+    cur_game.set(default_game["title"])
+    cur_link.set(default_game["image"])
+    cur_desc.set(default_game["desc"])
     image_refs = []  # To keep images alive
     ind = 0
+    for title, frame in list(utils.state.game_frames.items()):
+        if not frame.winfo_exists():
+            del utils.state.game_frames[title]
+        # Create frame for each game
+    for frame in utils.state.game_frames.values():
+        frame.grid_forget()
     for index, game in enumerate(game_list):
-        title = game[0]
-        platform = game[1]
-        img_path = game[2]
+        title = game["title"]
+        platform = game["status"]
+        img_path = game["image"]
         img_path = get_resource_path(img_path)
 
-        # Create frame for each game
-        game_frame = tk.Frame(scroll_frame, bd=2, relief="groove", background="white")
-        game_frame.grid(row=row, column=col, padx=10, pady=10)
-
-        # Load image
-        if os.path.exists(img_path):
-            img = Image.open(img_path)
+        if(title in utils.state.game_frames):
+            if title in utils.state.game_frames and utils.state.game_frames[title].winfo_exists():
+                utils.state.game_frames[title].grid(row=row, column=col)
         else:
-            img = Image.new("RGB", thumb_size, color="gray")
-        img.thumbnail(thumb_size)
-        photo = ImageTk.PhotoImage(img)
-        image_refs.append(photo)
+            game_frame = tk.Frame(scroll_frame, bd=2, relief="groove", background="white")
+            game_frame.grid(row=row, column=col, padx=10, pady=10)
+            utils.state.game_frames[title] = game_frame
+            photo = get_cached_image(img_path, thumb_size)
 
-        # Image label
-        img_label = tk.Label(game_frame, image=photo)
-        img_label.bind(
-            "<Button-1>",
-            lambda event, t=title, p=platform, i = img_path, ind = index + 1: on_game_click(t, p, i, go_to_journal, ind, root, cur_game, cur_prog, cur_link)
-        )
-        img_label.image = photo
-        img_label.pack()
-
-
-        # Text label
-        text = f"{title}\n({platform})"
-        text_label = tk.Label(game_frame, text=text, wraplength=120, justify="center")
-        text_label.pack()
-        # Arrange in grid
-        col += 1
-        if col >= 5:
-            col = 0
-            row += 1
-        ind += 1
-        frame.pack(padx=10, pady=10)
+            # Image label
+            img_label = tk.Label(game_frame, image=photo)
+            img_label.bind(
+                "<Button-1>",
+                lambda event, t=title, p=platform, i = img_path, ind = index + 1: on_game_click(t, p, i, go_to_journal, ind, root, cur_game, cur_prog, cur_link)
+            )
+            img_label.image = photo
+            img_label.pack()
+            utils.state.widget_image_map[img_label] = img_path
+            # Text label
+            text = f"{title}\n({platform})"
+            text_label = tk.Label(game_frame, text=text, wraplength=120, justify="center")
+            text_label.pack()
+            # Arrange in grid
+            col += 1
+            if col >= 5:
+                col = 0
+                row += 1
+            ind += 1
 
     def on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link):
         print("[DEBUG] on_game_click() img =", img)
@@ -599,36 +562,23 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         browse_btn = tk.Button(root, text="Change Game image", command=lambda:(on_img_click(name, progress, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
         add_btn = tk.Button(root, text="Add Tags", command=lambda:(clear_screen(root), add_tag_game(root, cur_game.get(), lambda:on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link))))
         rem_btn = tk.Button(root, text="Remove Tags", command=lambda: (clear_screen(root),remove_tag_game(root, cur_game.get(), lambda: on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link))))
-        file = get_csv_path("tag_connect.csv")
         tag_label = tk.Label(root, text = "Tags:")
         tags = ""
-        t = get_csv_path("games.csv")
-        with open(file, 'r') as f:
-            with open(t, 'r') as h:
-                read_tag = csv.reader(f)
-                read_game = csv.reader(h)
-                for i in read_game:
-                    cur = next(read_tag)
-                    if(i[0] == name):
-                        for tag in cur:
-                            tags = tags + tag + ", "
-        file = get_csv_path("favorites.csv")
-        fav = False
-        fav_btn = tk.Button(root, text="Add To Favorites", command=lambda:(clear_screen(root), add_favorite(name, fav),
-                            on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
-        with open(file, 'r') as f:
-            with open(t, 'r') as h:
-                read_tag = csv.reader(f)
-                read_game = csv.reader(h)
-                for i in read_game:
-                    cur = next(read_tag)
-                    if(i[0] == name):
-                        for tag in cur:
-                            fav = tag
-                            if(fav == "True"):
-                                fav = True
-                                fav_btn = tk.Button(root, text="Remove From Favorites", command=lambda:(clear_screen(root), add_favorite(name, fav),
+        for i in utils.state.game_store:
+            if(i["title"] == name):
+                fin = len(i["tags"])
+                index = 0
+                for tag in i["tags"]:
+                    if(index != fin - 1):
+                        tags = tags + tag + ", "
+                    else:
+                        tags = tags + tag
+                    index += 1
+                fav_btn = tk.Button(root, text="Add To Favorites", command=lambda:(clear_screen(root), add_favorite(name, "True"),
                                     on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
+                if(i["favorite"] == ["True"]):
+                    fav_btn = tk.Button(root, text="Remove From Favorites", command=lambda:(clear_screen(root), add_favorite(name, "False"),
+                                        on_game_click(name, progress, img, go_to_journal, ind, root, cur_game, cur_prog, cur_link)))
         desc_text_label = tk.Label(root)
         tags_label = tk.Label(root, text = tags)
         if(name != "N/A"):
@@ -667,9 +617,8 @@ def load_collection(root, go_to_journal, sort, game_list = None):
             game_path = get_csv_path("games.csv")
             cur_play_path = get_csv_path("curPlay.csv")
             games = []
-            with open(cur_play_path, 'r', newline='') as f:
-                cur = next(csv.reader(f))
-                if cur[0] == name:
+            for cur in utils.game_store:
+                if cur["title"] == name:
                     with open(cur_play_path, 'w', newline='') as f:
                         #print(cur)
                         csv.writer(f).writerow([cur[0], cur[1], new_image])
@@ -678,13 +627,13 @@ def load_collection(root, go_to_journal, sort, game_list = None):
                 game_path = get_csv_path("games.csv")
                 updated_games = []
                 temp = []
-                with open(game_path, 'r', newline='') as f:
-                    for row in csv.reader(f):
-                        if row[0] == name:
-                            updated_games.append([row[0], row[1], new_image, row[3], row[4], row[5], row[6], row[7]])
-                            temp = row[2]
-                        else:
-                            updated_games.append(row)
+                for row in utils.state.game_store:
+                    if row["title"] == name:
+                        updated_games.append([row["title"], row["status"], new_image, row["desc"], row["added"], row["start"], row["last"], 
+                        row["completed"]])
+                        temp = row["image"]
+                    else:
+                        updated_games.append(row)
 
                 with open(game_path, 'w', newline='') as f:
                     csv.writer(f).writerows(updated_games)
@@ -729,67 +678,55 @@ def load_tags(root):
 #sorts by the oder it is in selected_tags. no further sorting of selected_tags is done
 def sort_tags(selected_tags, fil):
     print("these are selected")
-    print(selected_tags)
-    csv_path = get_csv_path("tag_connect.csv")
-    games_path = get_csv_path("games.csv")
+    #print(selected_tags)
     tags = []
     not_tags = []
-    with open(csv_path, 'r') as f:
-        with open(games_path, 'r') as g:
-            reader = csv.reader(f)
-            games_reader = csv.reader(g)
-            next(reader)
-            next(games_reader)
-            for game in reader:
-                append_game = next(games_reader)
-                added = False
-                for cur in selected_tags:
-                    if(cur in game):
-                        added = True
-                        tags.append(append_game)
-                if (not fil or selected_tags == []):
-                    if(not added):
-                        not_tags.append(append_game)
-        for i in not_tags:
-            tags.append(i)
+    for i in utils.state.game_store:
+        added = False
+        for cur in selected_tags:
+            if(cur in i["tags"]):
+                added = True
+                tags.append(i)
+        if (not fil or selected_tags == []):
+            if(not added):
+                not_tags.append(i)
+    for i in not_tags:
+        tags.append(i)
     return tags
 
 def search_games(cur):
-    csv_path = get_csv_path("games.csv")
     cur = cur.lower()
     games = []
-    with open(csv_path, 'r') as f:
-        reader = csv.reader(f)
-        next(reader)
-        for i in reader:
-            if(cur in i[0].lower()):
-                games.append(i)
-            elif(cur == ''):
-                games.append(i)
+    for i in utils.state.game_store:
+        #print(i["title"])
+        if(cur in i["title"].lower()):
+            games.append(i)
+        elif(cur == ''):
+            games.append(i)
     return games
 
 def add_favorite(name, fav):
-    print(fav)
-    print(name)
     fav_path = get_csv_path("favorites.csv")
-    game_path = get_csv_path("games.csv")
-    favo = []
-    with open(fav_path, 'r') as f:
-        with open(game_path, 'r') as g:
-            fav_reader = csv.reader(f)
-            game_reader = csv.reader(g)
-            for i in game_reader:
-                cur = next(fav_reader)
-                if(i[0] == name):
-                    print(fav)
-                    if(fav == "False"):
-                        favo.append(["True"])
-                    else:
-                        favo.append(["False"])
-                        print("True")
-                else:
-                    favo.append(cur)
+    for i in utils.state.game_store:
+        if(i["title"]  == name):
+            i["favorite"] = [fav]
     with open(fav_path, 'w', newline = '') as f:
         writer = csv.writer(f)
-        writer.writerows(favo)
+        for i in utils.state.game_store:
+            writer.writerow(i["favorite"])
 
+def lazy_load_images(canvas, thumb_size):
+    for widget, path in list(utils.state.widget_image_map.items()):
+        if not widget.winfo_exists():
+            # remove it from cache if destroyed
+            del utils.state.widget_image_map[widget]
+            continue
+        widget_y = widget.winfo_y()
+        visible_top = canvas.canvasy(0)
+        visible_bottom = visible_top + canvas.winfo_height()
+        if widget_y + widget.winfo_height() >= visible_top and widget_y <= visible_bottom:
+            if not getattr(widget, "loaded", False):
+                photo = get_cached_image(path, thumb_size)
+                widget.configure(image=photo)
+                widget.image = photo
+                widget.loaded = True

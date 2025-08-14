@@ -1,9 +1,9 @@
-# Game_Tracker 1.2.0
+# Game_Tracker 1.3.0
 
 ### This is the first version of a program that is designed to make 
 ### keeping track of your games you have completed and wish to complete
 ### more interactive and fun!
-### It is as simple as running the .exe file to run the program!
+### It is as simple as running the .exe file to start the program!
 ### Any issues?
 ### Join the discord and report bugs: https://discord.gg/BTpTPavk2Q
 
@@ -24,7 +24,10 @@
 - Daily streak function
 
 **WHATS NEW**
-- Daily Streak system. see a reward for opening the app daily
+- Stability fixes
+- Bugfixes. refining of features
+- Major performance boost
+- Refactored code
 
 **BUGFIXES**
 

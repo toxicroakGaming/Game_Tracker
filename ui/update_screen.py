@@ -44,7 +44,10 @@ def do_screen(root, go_to_home, width = 300, height = 20):
     " - Images now appear for the games in the wheel of choices\n" + 
     " - Search and filter features added\n" + 
     "\n1.2.1\n" + 
-    " - added daily streak system")
+    " - added daily streak system]\n" +
+    "\n1.3.0\n" + 
+    " - Refactored code for performance\n" + 
+    " - stability and bug fixes")
     
     label = tk.Label(root, text="Updates\n" + 
     "CURRENT VERSION: 1.2.1", font=("Arial", 16))
