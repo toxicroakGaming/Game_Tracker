@@ -83,9 +83,11 @@ def remove_game(title_to_remove):
         tags = []
         #removing entry from favorites and tag_connect
         temp = utils.state.game_store
+        rem = False
         for i in utils.state.game_store:
-            if(i["name"] == title_to_remove):
+            if(i["title"] == title_to_remove):
                 temp.remove(i)
+                rem = True
         utils.state.game_store = temp
         #write everything with the game removed
         save_games()
@@ -96,11 +98,11 @@ def remove_game(title_to_remove):
             for i in csv_reader:
                 if(i[0] == title_to_remove and i[0] != "N/A"):
                     write_games(new, "curPlay.csv", 0)
-        if len(updated_games) == len(games):
+        if (not rem):
             print("no game found")
         else:
-            write_games(updated_games, "games.csv", 1)
-            print("Removed " + title_to_remove)
+            utils.util.save_games()
+            utils.util.load_games()
     else:
         print("cant remove nothing") 
     utils.util.load_games()
@@ -296,7 +298,7 @@ def add_to_list(name, progress, image):
     tag_path = get_csv_path("tag_connect.csv")
     with open(tag_path, 'a', newline = '') as f:
         csv_writer = csv.writer(f)
-        csv_writer.writerow("N/A")
+        csv_writer.writerow(["N/A"])
         utils.state.game_tags[name] = ["N/A"]
     fav_path = get_csv_path("favorites.csv")
     with open(fav_path, 'a', newline = '') as f:
@@ -382,9 +384,9 @@ def sort_games(type):
         for i in utils.state.game_store:
             sorted_list.append(i)
         if(type == 0):
-            sorted_list = sorted(sorted_list, key=lambda x: x["title"])
+            sorted_list = sorted(sorted_list, key=lambda x: x["title"].lower())
         elif(type == 1):
-            sorted_list = sorted(sorted_list, key=lambda x: x["title"], reverse = True)
+            sorted_list = sorted(sorted_list, key=lambda x: x["title"].lower(), reverse = True)
         elif(type == 2 or type == 3):
             #0 is not started
             #1 is in progress
@@ -430,6 +432,7 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         game_list = []
         #Read the CSV file
         for line in utils.state.game_store:
+            print(line["title"])
             game_list.append(line)
             if(line["status"] == "Completed" or line["status"] == "100%"):
                 utils.state.num_completed += 1
