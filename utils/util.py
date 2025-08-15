@@ -407,7 +407,6 @@ def load_games():
                     next(game_reader)
                     #title,platform,image,desc,added,start,last,completed
                     for i in game_reader:
-                        print(i)
                         favo = next(fav_reader)
                         tags = next(tag_reader)
                         #print(tags)

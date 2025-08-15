@@ -432,7 +432,6 @@ def load_collection(root, go_to_journal, sort, game_list = None):
         game_list = []
         #Read the CSV file
         for line in utils.state.game_store:
-            print(line["title"])
             game_list.append(line)
             if(line["status"] == "Completed" or line["status"] == "100%"):
                 utils.state.num_completed += 1
